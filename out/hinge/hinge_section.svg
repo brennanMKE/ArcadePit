@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 1080" width="1640" height="1080" font-family="Helvetica, Arial, sans-serif" font-size="12">
+<rect width="1640" height="1080" fill="#fbfaf7"/>
+<defs><marker id="ar" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d1b18"/></marker></defs>
+<text x="40" y="34" font-size="16" font-weight="bold" fill="#1d1b18">CLOSED</text>
+<rect x="220.0" y="938.8" width="17.1" height="71.2" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="220.0" y="593.9" width="17.1" height="42.8" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="237.1" y="636.7" width="5.7" height="316.3" fill="#cfe3f0" stroke="#7b7468" stroke-width="1.2"/>
+<rect x="237.1" y="594.4" width="36.1" height="42.3" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="243.8" y="633.8" width="15.9" height="2.8" fill="#fff1d6" stroke="#c76a12" stroke-width="1.2"/>
+<rect x="245.7" y="627.2" width="12.1" height="2.4" fill="#ffd27a" stroke="#c76a12" stroke-width="1.2"/>
+<rect x="685.5" y="593.9" width="17.1" height="416.1" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="237.1" y="992.9" width="448.4" height="17.1" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="242.8" y="938.8" width="442.7" height="11.4" fill="#e2c99c" stroke="#7b7468" stroke-width="1.2"/>
+<text x="246.6" y="787.7" fill="#7b7468" transform="rotate(-90 246.6 787.7)" text-anchor="middle">display window</text>
+<path d="M251.7,636.7 L247.9,910.2 L470.2,910.2 Z" fill="#ffd27a" opacity="0.18"/>
+<rect x="239.0" y="612.9" width="76.0" height="85.5" fill="none" stroke="#6d7a86" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text x="277.0" y="715.5" fill="#6d7a86" text-anchor="middle">SDS-210 stay</text>
+<text x="277.0" y="729.5" fill="#6d7a86" text-anchor="middle">(on end panel)</text>
+<polygon points="220.0,592.5 236.6,592.5 236.6,593.9 702.6,593.9 702.6,575.9 220.0,575.9" fill="#e7cfa3" stroke="#1d1b18" stroke-width="1.4"/>
+<polygon points="222.7,593.8 236.6,593.8 236.6,592.5 222.7,592.5" fill="#6d7a86"/>
+<rect x="218.6" y="596.6" width="1.4" height="13.3" fill="#6d7a86" stroke="#6d7a86" stroke-width="1.2"/>
+<circle cx="219.3" cy="593.2" r="3.8" fill="#6d7a86" stroke="#1d1b18"/>
+<path d="M361.8,612.2 Q361.8,732.9 361.8,593.9" fill="none" stroke="#d2541e" stroke-width="2.4"/>
+<circle cx="361.8" cy="612.2" r="3.5" fill="#fff" stroke="#d2541e" stroke-width="2"/>
+<circle cx="361.8" cy="593.9" r="3.5" fill="#fff" stroke="#d2541e" stroke-width="2"/>
+<line x1="220.0" y1="499.9" x2="702.6" y2="499.9" stroke="#1d1b18" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="461.3" y="493.9" text-anchor="middle" fill="#1d1b18">d = 508 mm (20.0")</text>
+<line x1="731.1" y1="593.9" x2="731.1" y2="575.9" stroke="#1d1b18" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="739.1" y="588.9" text-anchor="start" fill="#1d1b18">t = 19.05 mm (3/4")</text>
+<line x1="731.1" y1="1010.0" x2="731.1" y2="575.9" stroke="#1d1b18" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="723.1" y="796.9" text-anchor="end" fill="#1d1b18"></text>
+<text x="738.7" y="792.9" fill="#1d1b18">seat 457 mm</text>
+<line x1="228.3" y1="593.0" x2="286.5" y2="543.5" stroke="#1d1b18"/>
+<text x="289.4" y="547.5" fill="#1d1b18">rabbet 17.5 x 1.52 mm deep (11/16" x 0.060")</text>
+<line x1="218.1" y1="593.9" x2="134.5" y2="536.9" stroke="#1d1b18"/>
+<text x="132.6" y="533.1" text-anchor="end" fill="#1d1b18">piano hinge, knuckle at</text>
+<text x="132.6" y="547.1" text-anchor="end" fill="#1d1b18">outside back corner</text>
+<line x1="251.3" y1="637.6" x2="362.5" y2="802.9" stroke="#c76a12"/>
+<text x="365.4" y="806.9" fill="#c76a12">LED header: strip faces down in a 1/2" routed</text>
+<text x="365.4" y="820.9" fill="#c76a12">channel, opal diffuser flush; acrylic slides up under it</text>
+<line x1="219.3" y1="633.1" x2="361.8" y2="633.1" stroke="#1d1b18" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="290.5" y="647.1" text-anchor="middle" fill="#1d1b18">a 150 (case eye)</text>
+<line x1="375.1" y1="612.2" x2="375.1" y2="593.2" stroke="#1d1b18" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="383.1" y="606.7" text-anchor="start" fill="#1d1b18">b 20</text>
+<line x1="219.3" y1="665.2" x2="361.8" y2="665.2" stroke="#1d1b18" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="290.5" y="679.2" text-anchor="middle" fill="#1d1b18">c 150 (lid eye)</text>
+<text x="220.0" y="1040" fill="#7b7468">BACK (display face)</text>
+<text x="702.6" y="1040" text-anchor="end" fill="#7b7468">SEAT FRONT (pit side)</text>
+<text x="920" y="34" font-size="16" font-weight="bold" fill="#1d1b18">OPEN: stay holds 105°, rope stop 108°</text>
+<rect x="1100.0" y="938.8" width="17.1" height="71.2" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="1100.0" y="593.9" width="17.1" height="42.8" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="1117.1" y="636.7" width="5.7" height="316.3" fill="#cfe3f0" stroke="#7b7468" stroke-width="1.2"/>
+<rect x="1117.1" y="594.4" width="36.1" height="42.3" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="1123.8" y="633.8" width="15.9" height="2.8" fill="#fff1d6" stroke="#c76a12" stroke-width="1.2"/>
+<rect x="1125.7" y="627.2" width="12.1" height="2.4" fill="#ffd27a" stroke="#c76a12" stroke-width="1.2"/>
+<rect x="1565.5" y="593.9" width="17.1" height="416.1" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="1117.1" y="992.9" width="448.4" height="17.1" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="1122.8" y="938.8" width="442.7" height="11.4" fill="#e2c99c" stroke="#7b7468" stroke-width="1.2"/>
+<text x="1126.6" y="787.7" fill="#7b7468" transform="rotate(-90 1126.6 787.7)" text-anchor="middle">display window</text>
+<path d="M1131.7,636.7 L1127.9,910.2 L1350.2,910.2 Z" fill="#ffd27a" opacity="0.18"/>
+<rect x="1119.0" y="612.9" width="76.0" height="85.5" fill="none" stroke="#6d7a86" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text x="1157.0" y="715.5" fill="#6d7a86" text-anchor="middle">SDS-210 stay</text>
+<text x="1157.0" y="729.5" fill="#6d7a86" text-anchor="middle">(on end panel)</text>
+<polygon points="1098.4,592.7 1093.2,576.9 1094.6,576.5 950.6,133.3 933.4,138.9 1082.6,597.8" fill="#e7cfa3" stroke="#1d1b18" stroke-width="1.4"/>
+<polygon points="1098.8,589.8 1094.5,576.5 1093.3,576.9 1097.6,590.2" fill="#6d7a86"/>
+<rect x="1098.6" y="596.6" width="1.4" height="13.3" fill="#6d7a86" stroke="#6d7a86" stroke-width="1.2"/>
+<circle cx="1099.3" cy="593.2" r="3.8" fill="#6d7a86" stroke="#1d1b18"/>
+<line x1="1241.8" y1="612.2" x2="1055.9" y2="457.4" stroke="#d2541e" stroke-width="2.4"/>
+<circle cx="1241.8" cy="612.2" r="3.5" fill="#fff" stroke="#d2541e" stroke-width="2"/>
+<circle cx="1055.9" cy="457.4" r="3.5" fill="#fff" stroke="#d2541e" stroke-width="2"/>
+<line x1="933.7" y1="1010.0" x2="933.7" y2="81.9" stroke="#c76a12" stroke-dasharray="6 4"/>
+<line x1="933.7" y1="953.0" x2="1100.0" y2="953.0" stroke="#c76a12" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="1016.8" y="945.0" text-anchor="middle" fill="#c76a12">175 mm (6.9")</text>
+<text x="927.7" y="877.0" text-anchor="end" fill="#c76a12">min. wall</text>
+<text x="927.7" y="891.0" text-anchor="end" fill="#c76a12">clearance</text>
+<path d="M1213.3,593.2 A114.0,114.0 0 0 0 1064.0,484.8" fill="none" stroke="#1d1b18" stroke-dasharray="3 3"/>
+<text x="1165.8" y="526.7" fill="#1d1b18">θ = 108°</text>
+<text x="1233.0" y="755.4" fill="#d2541e">rope L = 255 mm, taut</text>
+<text x="1100.0" y="1040" fill="#7b7468">BACK (display face)</text>
+</svg>

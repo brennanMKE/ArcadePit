@@ -1,0 +1,19 @@
+# Normalise text line endings
+* text=auto eol=lf
+
+# Large binaries and CAD exchange files in Git LFS
+*.png  filter=lfs diff=lfs merge=lfs -text
+*.jpg  filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.pdf  filter=lfs diff=lfs merge=lfs -text
+*.zip  filter=lfs diff=lfs merge=lfs -text
+*.step filter=lfs diff=lfs merge=lfs -text
+*.stp  filter=lfs diff=lfs merge=lfs -text
+*.stl  filter=lfs diff=lfs merge=lfs -text
+*.3mf  filter=lfs diff=lfs merge=lfs -text
+
+# Generated mesh bundle: large single-line JSON, not useful to diff
+out/pit_meshes.json filter=lfs diff=lfs merge=lfs -text linguist-generated
+
+# Generated outputs
+out/hinge/* linguist-generated

@@ -1,0 +1,175 @@
+<meta charset="utf-8">
+<title>Arcade Conversation Pit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one-screen app. Header with the pit's key numbers, a full-width 3D stage, control bar below.
+   Single deliberate night-arcade look: warm black, birch, LED amber. */
+:root {
+  --bg: #0e0d0b;
+  --panel: #191714;
+  --line: #2e2a25;
+  --fg: #ece5da;
+  --muted: #a39887;
+  --birch: #d9bd91;
+  --led: #ffb547;
+  --display: "Chakra Petch", "Avenir Next Condensed", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--body); }
+.app { height: 100%; display: grid; grid-template-rows: auto auto minmax(320px, 1fr) auto; gap: 12px; padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); box-sizing: border-box; max-width: 1600px; margin: 0 auto; }
+header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px 28px; }
+h1 { font: 700 clamp(24px, 3.6vw, 38px)/1.05 var(--display); margin: 0; text-wrap: balance; }
+h1 span { color: var(--led); }
+.sub { margin: 4px 0 0; color: var(--muted); font-size: 14px; max-width: 60ch; }
+.sub a { color: var(--led); }
+.stats { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0; }
+.stats div { display: grid; gap: 1px; }
+.stats dt { font: 600 10.5px var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.stats dd { margin: 0; font: 500 14px var(--mono); font-variant-numeric: tabular-nums; }
+.stats dd small { color: var(--muted); font-size: 12px; }
+header { grid-row: 1; } .est { grid-row: 2; } .stage { grid-row: 3; } .bar { grid-row: 4; }
+.est { margin: -4px 0 0; font: 12px var(--mono); color: var(--led); }
+
+.stage { position: relative; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #0d0c0b; min-height: 320px; }
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.hint { position: absolute; top: 12px; left: 12px; font: 12px var(--mono); color: var(--muted); background: rgba(14,13,11,.8); border: 1px solid var(--line); border-radius: 4px; padding: 5px 9px; pointer-events: none; }
+.loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font: 13px var(--mono); }
+
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; font-size: 13px; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 5px; padding: 2px; }
+.seg button { font: 600 12.5px var(--display); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: none; border: 0; padding: 6px 12px; border-radius: 3px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--birch); color: #1a140c; }
+.bar label { display: flex; align-items: center; gap: 8px; color: var(--muted); cursor: pointer; }
+input[type=checkbox] { accent-color: var(--led); width: 16px; height: 16px; }
+.btn { font: 500 12px var(--mono); color: var(--fg); background: none; border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; cursor: pointer; }
+.legend { margin-left: auto; display: flex; gap: 14px; font: 12px var(--mono); color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--led); outline-offset: 2px; }
+@media (max-width: 640px) { .legend { margin-left: 0; } .hint { display: none; } }
+</style>
+
+<div class="app">
+  <header>
+    <div>
+      <h1>Arcade <span>Conversation Pit</span></h1>
+      <p class="sub">Ten identical lit storage benches around the Noisebridge coffee table: three across each player end, closing the corners, and two on each long side with a walk-in gap in the middle. <a id="benchLink" href="https://claude.ai/artifact/KXkdK499rf3dtLTWk31Rkt" target="_blank" rel="noopener">Bench details →</a></p>
+    </div>
+    <dl class="stats" id="stats"></dl>
+  </header>
+  <p class="est" id="est" hidden>Table size is estimated from photos until the Onshape model is exported. The layout resizes from it.</p>
+
+
+  <div class="stage" id="stage">
+    <div class="loading" id="loading">Loading pit…</div>
+    <div class="hint">Tap a bench to open its lid</div>
+  </div>
+
+  <div class="bar">
+    <div class="seg" role="group" aria-label="Camera view">
+      <button data-view="overview" aria-pressed="true">Overview</button>
+      <button data-view="seated" aria-pressed="false">Seated</button>
+      <button data-view="plan" aria-pressed="false">Plan</button>
+    </div>
+    <label for="night"><input id="night" type="checkbox" checked> Lights down</label>
+    <button class="btn" id="openAll">Open all lids</button>
+    <div class="legend" aria-label="Module key">
+      <span id="legend"></span>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import { THREE, loadData, makeMaterials, buildBench, buildTable, ringPlacements, createStage, registerGlow, lidAnimator, setLids, fmt } from './viewer.js';
+
+const stageEl = document.getElementById('stage');
+const stage = createStage(stageEl, { floorSize: 14 });
+stage.key.shadow.camera.left = stage.key.shadow.camera.bottom = -3.4;
+stage.key.shadow.camera.right = stage.key.shadow.camera.top = 3.4;
+
+let data;
+try { data = await loadData(); } catch (e) { document.getElementById('loading').textContent = e.message; throw e; }
+document.getElementById('loading').remove();
+const P = data.params;
+
+// key numbers, straight from the CAD parameters
+const ft = (mm) => fmt.ftin(mm).replace(' ', '');
+const stat = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
+document.getElementById('stats').innerHTML = [
+  stat('Outer footprint', `${fmt.mm(P.OUTER_L_TOP).replace(' mm', '')} × ${fmt.mm(P.OUTER_W)} <small>${ft(P.OUTER_L_TOP)} × ${ft(P.OUTER_W)}</small>`),
+  stat('Inside', `${fmt.mm(P.INNER_L).replace(' mm', '')} × ${fmt.mm(P.INNER_W)}`),
+  stat('Knee room', `${Math.round(P.CLEAR_END)} / ${Math.round(P.CLEAR_SIDE)} mm <small>ends / sides</small>`),
+  stat('Walk-in gaps', `2 × ${fmt.mm(P.GAP)} <small>${ft(P.GAP)}</small>`),
+  stat('Benches', `${data.placements.length} × ${fmt.mm(P.L)} <small>${ft(P.L)}</small>`),
+].join('');
+document.getElementById('est').hidden = !P.table_estimated;
+document.getElementById('legend').textContent = `${data.placements.length} identical benches`;
+
+const mats = makeMaterials();
+const benches = [];
+for (const pl of ringPlacements(data)) {
+  const b = buildBench(data, pl.variant, mats, { contents: pl.contents });
+  b.position.set(pl.pos[0], pl.pos[1], 0);
+  b.rotation.z = pl.rot;
+  stage.root.add(b);
+  registerGlow(stage, b.userData.glow, 0.12, 0.6);
+  benches.push(b);
+}
+const table = buildTable(data, mats);
+stage.root.add(table);
+registerGlow(stage, table.userData.glow, 0.0, 1.0);
+stage.onFrame.push(lidAnimator(benches));
+
+// camera presets (three.js frame: metres, Y up; CAD x -> x, CAD y -> -z)
+const xo = P.INNER_L / 2000, yo = P.INNER_W / 2000;
+const VIEWS = {
+  overview: [[2.7, 2.3, 3.3], [0, 0.25, 0]],
+  seated: [[-(xo + 0.25), 1.12, 0], [0.4, 0.45, 0]],   // player seat at the west end, facing the screen
+  plan: [[0, 7.6, 0.01], [0, 0, 0]],
+};
+stage.camera.position.set(...VIEWS.overview[0]);
+stage.controls.target.set(...VIEWS.overview[1]);
+document.querySelectorAll('[data-view]').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', b === btn));
+  stage.flyTo(...VIEWS[btn.dataset.view], 1100);
+}));
+
+document.getElementById('night').addEventListener('change', (e) => stage.setNight(e.target.checked));
+const openBtn = document.getElementById('openAll');
+openBtn.addEventListener('click', () => {
+  const open = benches.some(b => b.userData.lids.some(l => l.userData.target === 0));
+  benches.forEach((b, i) => setTimeout(() => setLids(b, open ? 70 : 0), i * 70));
+  openBtn.textContent = open ? 'Close all lids' : 'Open all lids';
+});
+
+// tap a bench to toggle its lid
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+let down = null;
+stage.renderer.domElement.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
+stage.renderer.domElement.addEventListener('pointerup', (e) => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) return;
+  const r = stage.renderer.domElement.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, stage.camera);
+  const hit = ray.intersectObjects(benches, true)[0];
+  if (!hit) return;
+  let o = hit.object;
+  while (o && !benches.includes(o)) o = o.parent;
+  if (o) setLids(o, o.userData.lids[0].userData.target > 0 ? 0 : 75);
+});
+
+stage.setNight(true);
+// one lid open on arrival: the near long-side bench left of the gap
+const near = data.placements.findIndex(p => p.side === 'south');
+setTimeout(() => setLids(benches[near], 75), 800);
+</script>

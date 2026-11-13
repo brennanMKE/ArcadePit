@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Local copy of out/pit_meshes.json used when serving web/
+web/pit_meshes.json
+web/*.svg
+
+# Duplicate of the raw/0*.png concept images
+raw/arcade_bench_concepts_all_images.zip
+raw/arcade_bench_concepts_all_images/
+
+# Editors
+.vscode/
+.idea/
+*.swp
