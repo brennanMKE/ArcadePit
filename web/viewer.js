@@ -98,6 +98,8 @@ export function makeMaterials() {
     glow_green: new THREE.MeshBasicMaterial({ color: 0x9bbc0f }),
     glow_warm: new THREE.MeshBasicMaterial({ color: 0xffd166 }),
     glow_blue: new THREE.MeshBasicMaterial({ color: 0x4cc9f0 }),
+    pp_red: new THREE.MeshStandardMaterial({ color: 0xc62828, roughness: 0.4 }),
+    pp_black: new THREE.MeshStandardMaterial({ color: 0x1c1c1c, roughness: 0.4 }),
     floor: new THREE.MeshStandardMaterial({ color: 0x5f5c58, roughness: 0.38, metalness: 0.0 }),
     _items: new Map(),
     item(hex) {
@@ -152,11 +154,13 @@ function meshFor(p, mats) {
   return m;
 }
 
-/** Build a bench (short | long) as a group in CAD frame (mm, Z-up).
+/** Build a bench on its base as a group in CAD frame (mm, Z-up).
  *  Each lid hangs off its own pivot group on the hinge axis. */
-export function buildBench(data, variant, mats, { lights = true, contents = null } = {}) {
+export function buildBench(data, variant, mats, { lights = true, contents = null, base = 'base' } = {}) {
   const v = data.variants[variant];
   const group = new THREE.Group();
+  // the low base the bench drops onto (pins, blind-mate 5 V connector, cable slots)
+  if (base && data.variants[base]) for (const p of data.variants[base].parts) group.add(meshFor(p, mats));
   const lids = v.pivots.map((pv) => {
     const g = new THREE.Group();
     g.position.set(0, pv.y, pv.z);
@@ -217,6 +221,14 @@ export function buildBench(data, variant, mats, { lights = true, contents = null
   group.userData = { variant, lids, items, glow, ropes };
   updateRopes(group);
   return group;
+}
+
+/** Just a base (no bench), for exploded views. */
+export function buildBase(data, name, mats) {
+  const g = new THREE.Group();
+  for (const p of data.variants[name].parts) g.add(meshFor(p, mats));
+  g.userData = { lids: [], items: [], glow: [], ropes: [] };
+  return g;
 }
 
 /** Rebuild rope geometry for the current lid angles: slack loop when closed, straight at the stop. */

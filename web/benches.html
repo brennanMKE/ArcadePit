@@ -84,6 +84,7 @@ dd small { color: var(--muted); font-size: 11.5px; }
       <div class="seg" role="group" aria-label="Bench variant">
         <button id="b-short" aria-pressed="true">One bench</button>
         <button id="b-long" aria-pressed="false">Corner</button>
+        <button id="b-base" aria-pressed="false">Base</button>
       </div>
       <div class="bar">
         <label for="lid">Lid <input id="lid" type="range" min="0" max="108" value="0"> <output id="lidOut">0°</output></label>
@@ -105,7 +106,7 @@ dd small { color: var(--muted); font-size: 11.5px; }
 } }
 </script>
 <script type="module">
-import { loadData, makeMaterials, buildBench, createStage, registerGlow, lidAnimator, setLids, fmt } from './viewer.js';
+import { loadData, makeMaterials, buildBench, buildBase, createStage, registerGlow, lidAnimator, setLids, fmt } from './viewer.js';
 
 const MATS = [
   ['#d9bd91', '¾″ birch plywood lid, full depth, no rear overhang'],
@@ -116,6 +117,8 @@ const MATS = [
   ['rgba(220,235,255,.35)', '6 mm clear acrylic: outer face and both ends'],
   ['#fff1d6', 'Warm-white LED strip facing down, in a routed channel behind the acrylic, under an opal diffuser'],
   ['#c9a678', 'Birch liner and display floor'],
+  ['#2a2a2a', 'Base: 45 mm black ply frame, set back 20 mm, cable slots through every rail'],
+  ['#c62828', '5 V blind-mate connector: Anderson Powerpole pair, red +5 V / black GND'],
   ['#f2a20c', 'Collection: carts, discs, consoles and toys (five themed sets rotate around the pit)'],
 ];
 const dim = (mm) => `${fmt.mm(mm)} <small>${fmt.ftin(mm)}</small>`;
@@ -129,10 +132,13 @@ function renderSpec(view) {
     ['Face window', `${sp.windows[0]} × ${sp.window_h} mm`],
     ['End windows', `2 × ${sp.end_windows} × ${sp.window_h} mm`],
     ['Hinge length', fmt.mm(sp.hinge[0])],
+    ['Base', `${sp.base.h} mm tall, ${sp.base.pin_d} mm locating pins`],
     ['Storage, approx.', `${sp.storage_l} L`],
     ['Empty weight, approx.', `${sp.weight_kg} kg <small>${Math.round(sp.weight_kg * 2.2)} lb</small>`],
   ].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
-  const blurb = view === 'corner'
+  const blurb = view === 'base'
+    ? `The bench lifted off its base. The two steel pins under the bench drop into the bushings in the base top, and the red/black Powerpole half under the left end plugs into the floating half in the base. Every base has cable slots through its rails, so each bench's own 5 V run passes under its neighbours.`
+    : view === 'corner'
     ? `How a corner closes: the end bench (three across each player end) runs to the outer corner, and the long-side bench butts into its seat face. The exposed end shows its window.`
     : `Length is set by the table: three benches span each player end, ${fmt.mm(P.INNER_W)} inside plus a bench depth each side. Windows on the face and both ends mean the exposed ends at corners and gaps all glow.`;
   document.getElementById('spec').innerHTML = `
@@ -143,6 +149,8 @@ function renderSpec(view) {
     <p>A steel piano hinge wraps round the outside top corner of the display face. The case leaf screws to the black rail above the window, and the lid leaf sits in a rabbet under the lid's back edge, so nothing is proud on the seat and every screw goes into face grain. Lift the seat front (finger scoop in the front panel) and the lid swings back over the display side. The soft-down stays latch at 105° and a cord at each end stops it at 108°.</p>
     <h3>How the display is lit</h3>
     <p>A black header is glued behind the frame's top rail, and the front acrylic slides up under it. A ½″ channel routed into the header's underside holds the LED strip facing down, just behind the acrylic, with an opal acrylic diffuser flush over it. Light falls onto the collection from the front-top, so the items are lit where people look, and the strip itself stays out of sight behind the frame. The end windows are lit by the same strip.</p>
+    <h3>How it sits and gets power</h3>
+    <p>Each bench drops onto its own ${sp.base.h} mm base, which fills the dead space that used to sit under the display floor, so the seat, windows and display are the same height as before. Two chamfered steel pins in the bench bottom find bushings in the base top and line the bench up ${sp.base.pin_l - data.power.conn_drop} mm before a red/black Powerpole pair meets, so setting the bench down plugs it in, and lifting it straight up unplugs it. Inside, the pair runs up a black chase hidden behind the left border into the LED header and feeds both ends of the strip. Every bench has its own fused 5 V run from a supply at its end of the pit.</p>
     <h3>Materials</h3>
     <ul class="mats">${MATS.map(([c, t]) => `<li><span class="sw" style="background:${c}"></span>${t}</li>`).join('')}</ul>
     <p class="foot">Lid swing is checked in the CAD script from 0–108°. Leave at least 175 mm (7″) clear behind each bench. Full hinge numbers: out/hinge/build_sheet.md. Add routed handholds in the end panels and a lid latch for moving. Weight assumes 18 mm birch ply at 680 kg/m³, empty.${P.table_estimated ? ' Bench length will update once the real table dimensions are in.' : ''}</p>`;
@@ -158,7 +166,7 @@ const mats = makeMaterials();
 const P = data.params;
 const sp = data.variants.bench.spec;
 // "one": a single bench centred.  "corner": the SW corner pair from the real layout.
-const groups = { one: [], corner: [] };
+const groups = { one: [], corner: [], base: [] };
 const themeBenches = data.contents.map((c, i) => {
   const b = buildBench(data, 'bench', mats, { contents: i });
   b.position.set(-sp.length / 2, -P.D / 2, 0);
@@ -171,17 +179,25 @@ const west = data.placements.find(p => p.side === 'west' && p.pos[1] < 0 && Math
 const south = data.placements.find(p => p.side === 'south' && p.pos[0] < 0);
 const cx = -P.INNER_L / 2 - P.D / 2 + 300, cy = -P.INNER_W / 2 - P.D / 2 + 300;
 for (const pl of [west, south]) {
-  const b = buildBench(data, 'bench', mats, { contents: pl.contents });
+  const b = buildBench(data, 'bench', mats, { contents: pl.contents, base: pl.base });
   b.position.set(pl.pos[0] - cx, pl.pos[1] - cy, 0);
   b.rotation.z = pl.rot * Math.PI / 180;
   stage.root.add(b); groups.corner.push(b);
 }
-const all = [...groups.one, ...groups.corner];
+// "base": one bench lifted off its base, to show the pins and the blind-mate connector
+{
+  const lifted = buildBench(data, 'bench', mats, { contents: 0, base: null });
+  lifted.position.set(-sp.length / 2, -P.D / 2, 340);
+  const base = buildBase(data, 'base', mats);
+  base.position.set(-sp.length / 2, -P.D / 2, 0);
+  stage.root.add(lifted, base); groups.base.push(lifted, base);
+}
+const all = [...groups.one, ...groups.corner, ...groups.base];
 all.forEach(b => registerGlow(stage, b.userData.glow, 0.08, 0.35));
 stage.onFrame.push(lidAnimator(all));
 
-const VIEWS = { one: [[1.0, 0.95, 1.55], [0, 0.2, 0]], corner: [[-1.55, 1.55, 2.5], [0.1, 0.15, -0.1]] };
-const KEY = { one: 'b-short', corner: 'b-long' };
+const VIEWS = { one: [[1.0, 0.95, 1.55], [0, 0.2, 0]], base: [[-1.35, 0.55, 1.15], [-0.15, 0.24, 0]], corner: [[-1.55, 1.55, 2.5], [0.1, 0.15, -0.1]] };
+const KEY = { one: 'b-short', corner: 'b-long', base: 'b-base' };
 let current = 'one';
 const lid = document.getElementById('lid');
 function show(v, fly = true) {
@@ -192,6 +208,7 @@ function show(v, fly = true) {
   for (const k in KEY) document.getElementById(KEY[k]).setAttribute('aria-pressed', k === v);
   all.forEach(b => setLids(b, +lid.value));
   renderSpec(v);
+  if (v === 'base') { const n = document.getElementById('night'); n.checked = false; stage.setNight(false); }
   if (fly) stage.flyTo(...VIEWS[v]); else { stage.camera.position.set(...VIEWS[v][0]); stage.controls.target.set(...VIEWS[v][1]); }
   if (location.hash !== '#' + v) history.replaceState(null, '', '#' + v);
 }
@@ -207,11 +224,12 @@ document.getElementById('items').addEventListener('change', (e) => {
 themeSel.addEventListener('change', () => { if (current === 'one') themeBenches.forEach((b, i) => b.visible = i === +themeSel.value); });
 document.getElementById('b-short').onclick = () => show('one');
 document.getElementById('b-long').onclick = () => show('corner');
+document.getElementById('b-base').onclick = () => show('base');
 document.getElementById('reset').onclick = () => stage.flyTo(...VIEWS[current]);
 addEventListener('hashchange', () => { const h = location.hash.slice(1); if (groups[h] && h !== current) show(h); });
 
 const start = location.hash.slice(1);
 show(groups[start] ? start : 'one', false);
-stage.setNight(true);
+stage.setNight(current !== 'base');
 setTimeout(() => { lid.value = 55; lid.dispatchEvent(new Event('input')); }, 700);
 </script>

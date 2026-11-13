@@ -20,11 +20,13 @@ a mesh bundle for the browser viewers.
 | Bench (all 10 identical) | 892 L × 508 D × 457 H mm | 35.1″ × 20″ × 18″ |
 | Walk-in gaps | 2, centred on the long sides, 915 mm | 36″ |
 | Knee room to table | 496 mm at player ends, 465 mm on long sides | 19.5″ / 18.3″ |
-| Bench weight (estimate) | ~29 kg | ~64 lb, a two-person carry |
+| Bench weight (estimate) | ~28 kg | ~62 lb, a two-person carry |
+| Base | 45 mm, set back 20 mm; the bench drops on with 2 locating pins | 1¾″ |
 | Storage per bench | ~143 L | ~5 ft³ |
 | Lid hinge | Steel piano hinge, 865 mm, wrapped on the outer top corner | 34″ |
 | Lid hold / stop | Soft-down stays hold at 105°, rope limiter stops at 108° | |
 | Display lighting | Down-facing LED strip in a routed header behind the front acrylic, opal diffuser | |
+| Power | 5 V through a blind-mate Powerpole connector in each base; one fused run per bench, one supply per half of the ring | |
 
 ## Layout
 
@@ -50,8 +52,9 @@ cad/
   arcade_pit.py      Main model: layout, bench, table import, swing check, exports
   collection.py      Display props (cartridges, discs, consoles, toys), 5 themed sets
   hinge_calc.py      Hinge/stay/rope calculator; writes the section SVG and build sheet
+  power_calc.py      5 V power plan: wire gauges, fuses, supplies; writes the power sheet and wiring plan
 web/
-  benches.html       Bench module viewer (lid slider, spec sheet, lighting notes)
+  benches.html       Bench module viewer (lid slider, spec sheet, lighting notes, lifted-off-base view)
   pit.html           Whole-pit viewer
   poster.html        Print layout used to render out/print/arcade_pit_print.png
   viewer.js          Shared three.js loader/materials/lid animation
@@ -70,6 +73,9 @@ uv run --python 3.12 --with build123d python cad/arcade_pit.py
 
 # Hinge numbers, section drawing and build sheet (standard library only)
 python3 cad/hinge_calc.py --leaf 0.065 --lid-weight-lb 13.4 --wall 300
+
+# 5 V power sheet and wiring plan (reads out/pit_meshes.json)
+python3 cad/power_calc.py --strip-w-per-m 18 --feeder-m 2
 
 # View locally
 cd web && cp ../out/pit_meshes.json . && python3 -m http.server 8765
@@ -92,6 +98,7 @@ See [docs/workflow.md](docs/workflow.md) for the full regeneration pipeline, inc
 | [docs/bench.md](docs/bench.md) | Bench module construction, materials, cut dimensions |
 | [docs/hinge.md](docs/hinge.md) | Lid hinge, stays, rope limiter, wall clearance |
 | [docs/lighting.md](docs/lighting.md) | LED header, routed channel and diffuser |
+| [docs/power.md](docs/power.md) | Base, locating pins, blind-mate 5 V connector, wiring and supplies |
 | [docs/display-contents.md](docs/display-contents.md) | Display prop themes |
 | [docs/workflow.md](docs/workflow.md) | Scripts, outputs, viewers, print render, checks |
 | [docs/open-items.md](docs/open-items.md) | Decisions pending and things still to measure |

@@ -14,7 +14,8 @@ they face a neighbour.
 | End windows | 325 mm wide × 318 mm, both ends |
 | Clear display height | 363 mm (display floor to lid) |
 | Storage volume | ~143 L |
-| Estimated weight | ~29 kg (64 lb): ply 680 kg/m³, acrylic 1190 kg/m³, steel 8000 kg/m³ |
+| Estimated weight | ~28 kg (62 lb): ply 680 kg/m³, acrylic 1190 kg/m³, steel 8000 kg/m³ |
+| Sits on | A 45 mm base (see [power.md](power.md)); the carcass starts 45 mm above the floor |
 
 ## Materials
 
@@ -31,16 +32,20 @@ they face a neighbour.
 
 ## Parts
 
-- **Display face (outer):** 18 mm panel with one window cut-out. Borders: 45 mm at the sides and top, 75 mm black base
-  rail at the bottom. The top border is the frame rail that carries the hinge's case leaf.
+- **Display face (outer):** 18 mm panel with one window cut-out. Borders: 45 mm at the sides and top. The bottom rail is
+  30 mm, sitting on the base, so the window still starts 75 mm above the floor. The top border is the frame rail that carries the hinge's case leaf.
 - **Front acrylic:** 6 mm, behind the display face. It overlaps the cut-out by 15 mm at the sides and bottom, and
   its top edge slides up under the LED header, which holds it in place.
 - **Seat-front panel (inner, faces the table):** 18 mm, with a 140 × 22 mm finger-pull scoop centred in its top edge
   for lifting the lid.
 - **Ends:** 18 mm panels, each with a window starting 125 mm in from the display face. The first 115 mm is kept
   solid (`STAY_ZONE`) for the lid stay and rope anchor. The end acrylic is 6 mm, inside the panel.
-- **Bottom:** 18 mm, between the ends.
-- **Display floor:** 12 mm ply, top surface level with the bottom of the window (75 mm above the floor).
+- **Bottom:** 18 mm, between the ends, resting on the base top plate at 45 mm. It carries the 2 locating pins and
+  the bench half of the Powerpole connector ([power.md](power.md)).
+- **Wire chase:** a 9.5 × 30 mm black raceway up the inside of the display face at the left end, hidden behind
+  the side border, from the connector to the LED header.
+- **Display floor:** 12 mm ply, directly on the bottom, top surface level with the bottom of the window (75 mm
+  above the floor). Notched around the wire chase.
 - **Back liner:** 6 mm ply against the inside of the seat-front panel, above the display floor.
 - **Lid:** one full-depth 3/4″ lid, 890 mm long (1 mm seam each side), flush with the display face at the back. No
   rear overhang. The underside has a rabbet for the hinge leaf and a relief for the knuckle.

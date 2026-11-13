@@ -113,7 +113,7 @@ stage.controls.enableDamping = false;
 const mats = makeMaterials();
 const benches = [];
 for (const pl of ringPlacements(data)) {
-  const b = buildBench(data, pl.variant, mats, { contents: pl.contents });
+  const b = buildBench(data, pl.variant, mats, { contents: pl.contents, base: pl.base });
   b.position.set(pl.pos[0], pl.pos[1], 0);
   b.rotation.z = pl.rot;
   stage.root.add(b);

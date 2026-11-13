@@ -19,18 +19,23 @@ In order, this:
 
 1. Measures the table from `raw/Arcade Table.step` and derives the layout ([layout.md](layout.md)).
 2. Builds the bench and runs the lid **swing check** from 0 to 108°. It fails if the lid collides with anything.
-3. Asserts that the hinge leaf fits within the lid thickness.
+3. Asserts that the hinge leaf fits within the lid thickness, that the base, bench bottom and display floor stack
+   up to the window, and that the pins engage before the connector.
 4. Checks that every part is a valid, non-empty solid, and prints part counts, volumes and bounding boxes.
-5. Builds the 5 display themes, and checks that each one fits inside the bench.
-6. Places 10 benches and the table, and checks that no benches overlap.
-7. Writes the outputs below, and prints the bench spec and layout parameters.
+5. Builds both bases, and checks that the pins clear the base frame.
+6. Builds the 5 display themes, and checks that each one fits inside the bench.
+7. Places 10 benches on their bases (power bases under the middle bench at each end) and the table, and checks
+   that no benches overlap.
+8. Writes the outputs below, and prints the bench spec and layout parameters.
 
 ### Outputs
 
 | File | Contents |
 |---|---|
 | `out/pit_bench.step` | One bench, every part labelled |
-| `out/arcade_pit_assembly.step` | The full pit: 10 benches and the table (props not included) |
+| `out/pit_base.step` | Standard base |
+| `out/pit_base_power.step` | Power base: standard base plus fuse block and feeder inlet |
+| `out/arcade_pit_assembly.step` | The full pit: 10 benches, 10 bases and the table (props not included) |
 | `out/pit_meshes.json` | Tessellated meshes, placements, pivots, lights and specs for the web viewers |
 
 ## Hinge calculator
@@ -42,6 +47,15 @@ python3 cad/hinge_calc.py [--leaf IN] [--lid-weight-lb LB] [--wall MM] [...]
 Writes `out/hinge/hinge_section.svg` (dimensioned side section, closed and open) and `out/hinge/build_sheet.md`.
 See [hinge.md](hinge.md).
 
+## Power calculator
+
+```sh
+python3 cad/power_calc.py [--strip-w-per-m W] [--feeder-m M] [...]
+```
+
+Reads `out/pit_meshes.json`, so run `arcade_pit.py` first. Writes `out/power/power_sheet.md` and
+`out/power/wiring_plan.svg`. See [power.md](power.md).
+
 ## Web viewers
 
 `web/` is a static three.js (0.160, from jsDelivr) site. All three pages load `pit_meshes.json` from their own
@@ -49,7 +63,7 @@ directory through `viewer.js`.
 
 | Page | Shows |
 |---|---|
-| `benches.html` | One bench module: lid slider to 108°, theme picker, spec sheet, lighting section |
+| `benches.html` | One bench module: lid slider to 108°, theme picker, spec sheet, lighting and power sections. The **Base** view shows a bench lifted off its base |
 | `pit.html` | The whole pit around the table |
 | `poster.html` | The print layout |
 
@@ -93,4 +107,5 @@ They're all at the top of `cad/arcade_pit.py`:
 | Layout | `CLEAR_END`, `CLEAR_SIDE`, `END_BENCHES`, `GAP_MIN`, `D` |
 | Bench | `H`, `T_TOP`, `T`, `T_ACR`, `T_LINER`, `T_FLOOR`, `SEAM`, `BORDER_*`, `STAY_ZONE` |
 | Lighting | `HEADER_D`, `LED_CH_W`, `LED_CH_D`, `DIFF_W`, `DIFF_T` |
+| Base and power | `BASE_*`, `PIN_*`, `PP`, `PP_L`, `CONN_*`, `CHASE_*` |
 | Hinge | from `hinge_calc.Inputs()` defaults |

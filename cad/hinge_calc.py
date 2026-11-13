@@ -140,7 +140,7 @@ def compute(i: Inputs) -> Results:
 
 
 # ---------------------------------------------------------------- SVG section
-def section_svg(i: Inputs, r: Results, H=457.0, HC=438.0, T=18.0, floor_z=75.0, win_top=393.0) -> str:
+def section_svg(i: Inputs, r: Results, H=457.0, HC=438.0, T=18.0, floor_z=75.0, win_top=393.0, base_h=45.0) -> str:
     """Side section through a bench end, looking along the hinge. Back (display) face
     on the left, seat front on the right. Closed state left, open state right."""
     s = 0.95                        # px per mm
@@ -166,15 +166,17 @@ def section_svg(i: Inputs, r: Results, H=457.0, HC=438.0, T=18.0, floor_z=75.0, 
             da = f' stroke-dasharray="{dash}"' if dash else ""
             return (f'<rect x="{X(x0):.1f}" y="{Y(y1):.1f}" width="{(x1 - x0) * s:.1f}" height="{(y1 - y0) * s:.1f}" '
                     f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}"{da}/>')
-        g += [rect(0, 0, T, floor_z, "#2b2b2b"), rect(0, win_top, T, HC, "#2b2b2b"),
+        g += [rect(20, 0, d - 20, base_h - 12, "#4a4a4a", mute), rect(20, base_h - 12, d - 20, base_h, "#3a3a3a"),
+              rect(0, base_h, T, floor_z, "#2b2b2b"), rect(0, win_top, T, HC, "#2b2b2b"),
               rect(T, floor_z - 15, T + 6, win_top, "#cfe3f0", mute),
               rect(T, win_top, T + 38, HC - 0.5, "#2b2b2b"),
               rect(T + 7, win_top, T + 7 + 16.7, win_top + 3, "#fff1d6", acc),
               rect(T + 9, win_top + 7.5, T + 9 + 12.7, win_top + 10, "#ffd27a", acc),
-              rect(d - T, 0, d, HC, "#2b2b2b"), rect(T, 0, d - T, T, "#2b2b2b"),
+              rect(d - T, base_h, d, HC, "#2b2b2b"), rect(T, base_h, d - T, base_h + T, "#2b2b2b"),
               rect(T + 6, floor_z - 12, d - T, floor_z, "#e2c99c", mute)]
         g.append(f'<text x="{X(T + 10):.1f}" y="{Y((floor_z + win_top) / 2):.1f}" fill="{mute}" '
                  f'transform="rotate(-90 {X(T + 10):.1f} {Y((floor_z + win_top) / 2):.1f})" text-anchor="middle">display window</text>')
+        g.append(f'<text x="{X(d / 2):.1f}" y="{Y(base_h / 2) + 4:.1f}" fill="#fff" text-anchor="middle">base {base_h:.0f} mm</text>')
         # downlight cone from the LED channel
         cx, cz = T + 15.4, win_top
         g.append(f'<path d="M{X(cx):.1f},{Y(cz):.1f} L{X(cx - 4):.1f},{Y(floor_z + 30):.1f} L{X(cx + 230):.1f},{Y(floor_z + 30):.1f} Z" '

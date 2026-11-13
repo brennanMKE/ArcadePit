@@ -7,6 +7,7 @@ start.
 - [bench.md](bench.md): bench module construction
 - [hinge.md](hinge.md): lid hinge, stays and rope limiter
 - [lighting.md](lighting.md): display lighting
+- [power.md](power.md): base, locating pins and 5 V power
 - [display-contents.md](display-contents.md): display prop themes
 - [workflow.md](workflow.md): scripts, outputs and viewers
 - [open-items.md](open-items.md): pending decisions and measurements
@@ -44,3 +45,7 @@ How the design got to where it is, so the reasons aren't lost.
 8. **Lighting rework.** The lights moved from under the lid and the end windows to one down-facing LED strip at the
    front, just behind the acrylic. It sits in a routed channel under an opal diffuser, so the items are lit from
    the front and above with no glow from the back.
+9. **Base and 5 V power.** A deck was considered and dropped. Instead each bench drops onto its own 45 mm base,
+   which fills the empty space under the display floor, so no heights change. Locating pins line each bench up,
+   and a blind-mate Powerpole connects it as it sets down. Each bench gets its own fused 5 V run from a supply at
+   its end of the pit.

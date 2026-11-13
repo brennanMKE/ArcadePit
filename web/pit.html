@@ -113,12 +113,12 @@ document.getElementById('stats').innerHTML = [
   stat('Benches', `${data.placements.length} × ${fmt.mm(P.L)} <small>${ft(P.L)}</small>`),
 ].join('');
 document.getElementById('est').hidden = !P.table_estimated;
-document.getElementById('legend').textContent = `${data.placements.length} identical benches`;
+document.getElementById('legend').textContent = `${data.placements.length} identical benches on 45 mm bases · 5 V from 2 supplies`;
 
 const mats = makeMaterials();
 const benches = [];
 for (const pl of ringPlacements(data)) {
-  const b = buildBench(data, pl.variant, mats, { contents: pl.contents });
+  const b = buildBench(data, pl.variant, mats, { contents: pl.contents, base: pl.base });
   b.position.set(pl.pos[0], pl.pos[1], 0);
   b.rotation.z = pl.rot;
   stage.root.add(b);

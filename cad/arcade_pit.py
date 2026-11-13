@@ -108,8 +108,34 @@ BORDER_SIDE = 45.0
 BORDER_TOP = 45.0
 BORDER_BOT = 75.0  # black base rail below window
 MULLION = 40.0
-HC = H - T_TOP     # carcass height
+HC = H - T_TOP     # carcass top (Z of the lid underside, from the room floor)
 FLOOR_Z = BORDER_BOT  # display floor top surface aligns with window bottom
+
+# Base: each bench drops onto its own low base.  The base fills the dead space that used
+# to sit under the display floor, so seat height, windows and display height are unchanged:
+# base 45 + bench bottom 18 + display floor 12 = window bottom at 75.
+BASE_H = 45.0        # base height; the bench bottom sits on it
+BASE_TOP = 12.0      # base top plate (ply)
+BASE_RAIL = 18.0     # base frame rails (ply)
+BASE_SET = 20.0      # base set back from the display face and seat front (toe kick)
+# Locating pins: steel, in the bench bottom, drop into bushed holes in the base top plate.
+# They protrude further than the connector so they align the bench before it mates.
+PIN_R = 6.0
+PIN_L = 25.0         # below the bench bottom
+PIN_X = 90.0         # from each bench end, on the depth centreline
+# Blind-mate 5 V connector: Anderson Powerpole pair (red +5 V, black GND), bench half fixed
+# in the bench bottom, base half in a floating bracket.  Under the wire chase at the left end.
+PP = 7.9             # Powerpole housing cross-section
+PP_L = 24.6          # housing length
+CONN_X, CONN_Y = 40.0, 48.0   # pair centre, bench-local
+CONN_DROP = 12.0     # bench half protrudes this far below the bench bottom (< PIN_L)
+# Wire chase: black raceway up the inside of the display face, hidden behind the 45 mm side
+# border, from the connector to the end of the LED header.  The far end of the strip is fed by
+# a pair run back along the LED channel, so both ends get power.
+CHASE_X = (35.0, 44.5)
+CHASE_Y = (T + T_ACR + 1, 55.0)
+assert abs(BASE_H + T + T_FLOOR - FLOOR_Z) < 0.01, "base + bottom + display floor must meet the window"
+assert PIN_L > CONN_DROP + 8, "pins must engage before the connector"
 
 OUT = Path(__file__).resolve().parent.parent / "out"
 
@@ -207,6 +233,80 @@ def contents(rng, x0, x1, y0, y1, prefix):
     return parts
 
 
+# ---------------------------------------------------------------- base + 5 V power
+def pp_pair(x_mid, y0, y1, z0, z1, tag, along="z"):
+    """Anderson Powerpole pair: red (+5 V) then black (GND) side by side along X."""
+    return [Part(f"{tag}_pos", box(x_mid - PP, x_mid, y0, y1, z0, z1), "pp_red"),
+            Part(f"{tag}_gnd", box(x_mid, x_mid + PP, y0, y1, z0, z1), "pp_black")]
+
+
+def power_parts_bench(length):
+    """Bench-side power hardware: locating pins, fixed connector half, wire chase."""
+    from build123d import Cone
+    p = []
+    for i, x in enumerate((PIN_X, length - PIN_X)):
+        z_tip = BASE_H - PIN_L
+        pin = Cylinder(PIN_R, PIN_L - 6 + T, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+            Location((x, D / 2, z_tip + 6)))
+        pin += Cone(PIN_R / 2, PIN_R, 6, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+            Location((x, D / 2, z_tip)))
+        p.append(Part(f"pin_{i}", pin, "steel"))
+    z0 = BASE_H - CONN_DROP
+    p += pp_pair(CONN_X, CONN_Y - PP / 2, CONN_Y + PP / 2, z0, z0 + PP_L, "conn_bench")
+    p.append(Part("wire_chase", box(*CHASE_X, *CHASE_Y, BASE_H + T, HC - BORDER_TOP), "black"))
+    return p
+
+
+def base_parts(length, power=False):
+    """Low base the bench drops onto.  Open-bottom ply frame under a 12 mm top plate, with
+    cable slots through every rail so each bench's 5 V run can pass through its neighbours.
+    power=True adds the fused distribution block and the feeder inlet (middle end bench)."""
+    x0, x1, y0, y1 = SEAM, length - SEAM, BASE_SET, D - BASE_SET
+    zt, R = BASE_H - BASE_TOP, BASE_RAIL
+    slot_z = (4.0, 26.0)
+    p = []
+    top = box(x0, x1, y0, y1, zt, BASE_H)
+    top -= box(CONN_X - PP - 1.5, CONN_X + PP + 1.5, CONN_Y - PP / 2 - 1.5, CONN_Y + PP / 2 + 1.5, zt - 1, BASE_H + 1)
+    for i, x in enumerate((PIN_X, length - PIN_X)):
+        hole = Cylinder(PIN_R + 2, BASE_TOP + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+            Location((x, D / 2, zt - 1)))
+        top -= hole
+        bush = Cylinder(PIN_R + 2, BASE_TOP, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+            Location((x, D / 2, zt)))
+        bush -= Cylinder(PIN_R + 0.4, BASE_TOP + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+            Location((x, D / 2, zt - 1)))
+        p.append(Part(f"base_bushing_{i}", bush, "steel"))
+    p.append(Part("base_top", top, "black"))
+    front = box(x0, x1, y0, y0 + R, 0, zt)
+    back = box(x0, x1, y1 - R, y1, 0, zt)
+    for a, b in ((x0 + 40, x0 + 220), (x1 - 220, x1 - 40)):
+        back -= box(a, b, y1 - R - 1, y1 + 1, *slot_z)
+    ys = (y0 + R + 60, y1 - R - 60)
+    rails = [box(x0, x0 + R, y0 + R, y1 - R, 0, zt), box(x1 - R, x1, y0 + R, y1 - R, 0, zt),
+             box(length / 2 - R / 2, length / 2 + R / 2, y0 + R, y1 - R, 0, zt)]
+    rails = [r - box(r.bounding_box().min.X - 1, r.bounding_box().max.X + 1, *ys, *slot_z) for r in rails]
+    # floating bracket for the base connector half, screwed to the front rail
+    br = box(CONN_X - 14, CONN_X + 14, y0 + R, CONN_Y + 10, 4, zt)
+    br -= box(CONN_X - PP - 0.6, CONN_X + PP + 0.6, CONN_Y - PP / 2 - 0.6, CONN_Y + PP / 2 + 0.6, 3, zt + 1)
+    p.append(Part("base_conn_bracket", br, "black"))
+    z1 = BASE_H - CONN_DROP
+    p += pp_pair(CONN_X, CONN_Y - PP / 2, CONN_Y + PP / 2, z1 - PP_L, z1, "conn_base")
+    if power:
+        fx = length / 2 + 110
+        p.append(Part("fuse_block", box(fx - 60, fx + 60, D / 2 - 35, D / 2 + 35, zt - 28, zt), "stay"))
+        ix = length / 2 + 100
+        front -= box(ix - PP - 0.5, ix + PP + 0.5, y0 - 1, y0 + R + 1, 12 - 0.5, 12 + PP + 0.5)
+        p += pp_pair(ix, y0 - 10, y0 - 10 + PP_L, 12, 12 + PP, "feeder_inlet")
+    p.append(Part("base_front", front, "black"))
+    p.append(Part("base_back", back, "black"))
+    for k, r in enumerate(rails):
+        p.append(Part(f"base_rail_{k}", r, "black"))
+    return p
+
+
+POWER = {"conn": [CONN_X, CONN_Y], "fuse": None, "feeder": None}
+
+
 # ---------------------------------------------------------------- variants
 def bench(length, n_bays, end_windows, n_lids, seed):
     """Generic display bench.  Returns parts, pivots, lights, spec dict."""
@@ -224,7 +324,7 @@ def bench(length, n_bays, end_windows, n_lids, seed):
            [k * length / n_bays for k in range(n_bays + 1)]
 
     # outer display face with one window per bay
-    face = box(0, length, 0, T, 0, HC)
+    face = box(0, length, 0, T, BASE_H, HC)
     win_w = []
     for k in range(n_bays):
         a = bays[k] + (BORDER_SIDE if k == 0 else MULLION / 2)
@@ -249,16 +349,21 @@ def bench(length, n_bays, end_windows, n_lids, seed):
     LED_SPEC.update({"strip_len": lx1 - lx0, "channel": [LED_CH_W, LED_CH_D], "diffuser": [DIFF_W, DIFF_T],
                      "header": [hx1 - hx0, HEADER_D, HC - 0.5 - wz1], "y": ch_y0 + LED_CH_W / 2, "z": wz1})
     LENGTH_HINT[0] = length
-    inner = box(0, length, D - T, D, 0, HC)
+    inner = box(0, length, D - T, D, BASE_H, HC)
     # finger pull: scoop in the top of the seat-front panel, centred
     inner -= box(length / 2 - 70, length / 2 + 70, D - T - 1, D + 1, HC - 22, HC + 1)
     p.append(Part("inner_face", inner, "black"))
-    p.append(Part("bottom", box(T, length - T, T, D - T, 0, T), "black"))
+    bottom = box(T, length - T, T, D - T, BASE_H, BASE_H + T)
+    p += power_parts_bench(length)
+    for pt in p:
+        if pt.name.startswith(("pin_", "conn_bench")):
+            bottom -= pt.shape
+    p.append(Part("bottom", bottom, "black"))
 
     # ends: windowed (long bench, exposed at the pit corners) or plain butt panels
     end_win_w = 0.0
     for side, (x0, x1) in (("l", (0, T)), ("r", (length - T, length))):
-        end = box(x0, x1, T, D - T, 0, HC)
+        end = box(x0, x1, T, D - T, BASE_H, HC)
         if end_windows:
             ya, yb = STAY_ZONE + 10, D - T - BORDER_SIDE + 5
             end -= box(x0 - 1, x1 + 1, ya, yb, wz0, wz1)
@@ -271,7 +376,9 @@ def bench(length, n_bays, end_windows, n_lids, seed):
         p.append(Part(f"end_{side}", end, "black"))
 
     inset = T + (T_ACR if end_windows else T_LINER)
-    p.append(Part("display_floor", box(T, length - T, T + T_ACR, D - T, FLOOR_Z - T_FLOOR, FLOOR_Z), "ply"))
+    dfloor = box(T, length - T, T + T_ACR, D - T, FLOOR_Z - T_FLOOR, FLOOR_Z)
+    dfloor -= box(CHASE_X[0] - 0.5, CHASE_X[1] + 0.5, T, CHASE_Y[1] + 0.5, FLOOR_Z - T_FLOOR - 1, FLOOR_Z + 1)
+    p.append(Part("display_floor", dfloor, "ply"))
     p.append(Part("back_liner", box(T, length - T, D - T - T_LINER, D - T, FLOOR_Z, HC), "ply"))
     for k in range(1, n_bays):
         x = bays[k]
@@ -476,18 +583,37 @@ def main():
     swing_check(bp, b_piv[0])
     assert H - LEAF_W > HC, 'hinge leaf deeper than the top board'
     tp = coffee_table()
+    basep, powerp = base_parts(L), base_parts(L, power=True)
     check(bp, "bench")
+    check(basep, "base")
+    check(powerp, "base_pwr")
     check(tp, "table")
+    # bench sits on its base: bottom panel on the top plate, pins in the bushings, connector halves meet
+    bench_bb = Compound([pt.shape for pt in bp if pt.name == "bottom"]).bounding_box()
+    assert abs(bench_bb.min.Z - BASE_H) < 0.01
+    for pt in bp:
+        if pt.name.startswith("pin_"):
+            for bt in basep:
+                if bt.name.startswith(("base_top", "base_rail", "base_front", "base_back", "base_conn")):
+                    v = (pt.shape & bt.shape).volume
+                    assert v < 1, f"{pt.name} hits {bt.name} ({v:.1f} mm^3)"
+    print("base fit OK: pins clear the base, connector halves meet at Z =", BASE_H - CONN_DROP)
 
     b_c, t_c = labelled(bp, "pit_bench"), labelled(tp, "coffee_table")
+    base_c, power_c = labelled(basep, "pit_base"), labelled(powerp, "pit_base_power")
     export_step(b_c, str(OUT / "pit_bench.step"))
+    export_step(base_c, str(OUT / "pit_base.step"))
+    export_step(power_c, str(OUT / "pit_base_power.step"))
 
     places = ring_locations()
+    # the middle bench at each player end gets the power base (one 5 V supply per half of the ring)
+    ends = {s: [k for k, pl in enumerate(places) if pl[3] == s] for s in ("west", "east")}
+    power_idx = {ends["west"][1], ends["east"][1]}
 
     # display collections: one themed set per bench, rotated around the pit
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from collection import THEMES, build_contents
-    ix0, ix1 = T + T_ACR + 2, L - T - T_ACR - 2
+    ix0, ix1 = CHASE_X[1] + 2, L - T - T_ACR - 2      # left edge clears the wire chase
     iy0, iy1 = T + T_ACR + 2, D - T - T_LINER - 2
     sets = []
     for ti in range(len(THEMES)):
@@ -498,11 +624,14 @@ def main():
             and cb.max.Z < HC - 15, f"theme {nm} pokes out of the bench: {cb}"
         check(prts, nm[:9])
         sets.append((nm, prts))
-    asm = [b_c.moved(Location((x, y, 0)) * Rotation(0, 0, r)) for x, y, r, _ in places] + [t_c]
+    benches = [b_c.moved(Location((x, y, 0)) * Rotation(0, 0, r)) for x, y, r, _ in places]
+    bases = [(power_c if k in power_idx else base_c).moved(Location((x, y, 0)) * Rotation(0, 0, r))
+             for k, (x, y, r, _) in enumerate(places)]
+    asm = benches + bases + [t_c]
     for i, a in enumerate(asm):
         a.label = f"{a.label}_{i}"
     # sanity: no two benches overlap
-    solids = [Compound([s for s in a.solids()]) for a in asm[:-1]]
+    solids = [Compound([s for s in a.solids()]) for a in benches]
     for i in range(len(solids)):
         for j in range(i + 1, len(solids)):
             bi, bj = solids[i].bounding_box(), solids[j].bounding_box()
@@ -518,6 +647,8 @@ def main():
         + sum(pt.shape.volume for pt in bp if pt.mat == "acrylic") * 1.19e-6 \
         + sum(pt.shape.volume for pt in bp if pt.mat == "steel") * 8.0e-6
     b_spec["weight_kg"] = round(weight)
+    b_spec["base"] = {"h": BASE_H, "setback": BASE_SET, "pin_d": 2 * PIN_R, "pin_l": PIN_L,
+                      "weight_kg": round(sum(pt.shape.volume for pt in basep if pt.mat == "black") * 0.68e-6, 1)}
     b_spec["led"] = {k: (round(v, 1) if isinstance(v, float) else [round(x, 1) for x in v]) for k, v in LED_SPEC.items()}
     params = {"D": D, "L": L, "H": H, "OVERHANG": OVERHANG, "GAP": GAP,
               "INNER_L": INNER_L, "INNER_W": INNER_W,
@@ -527,12 +658,18 @@ def main():
     data = {
         "units": "mm",
         "params": params,
-        "placements": [{"variant": "bench", "pos": [x, y], "rot": r, "side": sd, "contents": i % len(sets)}
+        "placements": [{"variant": "bench", "base": "base_power" if i in power_idx else "base",
+                        "pos": [x, y], "rot": r, "side": sd, "contents": i % len(sets),
+                        "half": "west" if x < 0 or sd == "west" else "east"}
                        for i, (x, y, r, sd) in enumerate(places)],
+        "power": {"conn": [CONN_X, CONN_Y], "fuse": [L / 2 + 110, D / 2], "feeder": [L / 2 + 100, BASE_SET],
+                  "strip_len": LED_SPEC["strip_len"], "base_h": BASE_H, "pin_l": PIN_L, "conn_drop": CONN_DROP},
         "contents": [{"name": nm, "parts": [mesh_record(x) for x in prts]} for nm, prts in sets],
         "variants": {
             "bench": {"parts": [mesh_record(x) for x in bp], "pivots": b_piv, "lights": b_lights,
                       "spec": b_spec, "qty": len(places)},
+            "base": {"parts": [mesh_record(x) for x in basep]},
+            "base_power": {"parts": [mesh_record(x) for x in powerp]},
             "table": {"parts": [mesh_record(x) for x in tp]},
         },
     }

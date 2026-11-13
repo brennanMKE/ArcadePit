@@ -2,16 +2,19 @@
 <rect width="1640" height="1080" fill="#fbfaf7"/>
 <defs><marker id="ar" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d1b18"/></marker></defs>
 <text x="40" y="34" font-size="16" font-weight="bold" fill="#1d1b18">CLOSED</text>
-<rect x="220.0" y="938.8" width="17.1" height="71.2" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="239.0" y="978.6" width="444.6" height="31.3" fill="#4a4a4a" stroke="#7b7468" stroke-width="1.2"/>
+<rect x="239.0" y="967.2" width="444.6" height="11.4" fill="#3a3a3a" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="220.0" y="938.8" width="17.1" height="28.5" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
 <rect x="220.0" y="593.9" width="17.1" height="42.8" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
 <rect x="237.1" y="636.7" width="5.7" height="316.3" fill="#cfe3f0" stroke="#7b7468" stroke-width="1.2"/>
 <rect x="237.1" y="594.4" width="36.1" height="42.3" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
 <rect x="243.8" y="633.8" width="15.9" height="2.8" fill="#fff1d6" stroke="#c76a12" stroke-width="1.2"/>
 <rect x="245.7" y="627.2" width="12.1" height="2.4" fill="#ffd27a" stroke="#c76a12" stroke-width="1.2"/>
-<rect x="685.5" y="593.9" width="17.1" height="416.1" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
-<rect x="237.1" y="992.9" width="448.4" height="17.1" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="685.5" y="593.9" width="17.1" height="373.3" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="237.1" y="950.1" width="448.4" height="17.1" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
 <rect x="242.8" y="938.8" width="442.7" height="11.4" fill="#e2c99c" stroke="#7b7468" stroke-width="1.2"/>
 <text x="246.6" y="787.7" fill="#7b7468" transform="rotate(-90 246.6 787.7)" text-anchor="middle">display window</text>
+<text x="461.3" y="992.6" fill="#fff" text-anchor="middle">base 45 mm</text>
 <path d="M251.7,636.7 L247.9,910.2 L470.2,910.2 Z" fill="#ffd27a" opacity="0.18"/>
 <rect x="239.0" y="612.9" width="76.0" height="85.5" fill="none" stroke="#6d7a86" stroke-width="1.2" stroke-dasharray="5 3"/>
 <text x="277.0" y="715.5" fill="#6d7a86" text-anchor="middle">SDS-210 stay</text>
@@ -47,16 +50,19 @@
 <text x="220.0" y="1040" fill="#7b7468">BACK (display face)</text>
 <text x="702.6" y="1040" text-anchor="end" fill="#7b7468">SEAT FRONT (pit side)</text>
 <text x="920" y="34" font-size="16" font-weight="bold" fill="#1d1b18">OPEN: stay holds 105°, rope stop 108°</text>
-<rect x="1100.0" y="938.8" width="17.1" height="71.2" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="1119.0" y="978.6" width="444.6" height="31.3" fill="#4a4a4a" stroke="#7b7468" stroke-width="1.2"/>
+<rect x="1119.0" y="967.2" width="444.6" height="11.4" fill="#3a3a3a" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="1100.0" y="938.8" width="17.1" height="28.5" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
 <rect x="1100.0" y="593.9" width="17.1" height="42.8" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
 <rect x="1117.1" y="636.7" width="5.7" height="316.3" fill="#cfe3f0" stroke="#7b7468" stroke-width="1.2"/>
 <rect x="1117.1" y="594.4" width="36.1" height="42.3" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
 <rect x="1123.8" y="633.8" width="15.9" height="2.8" fill="#fff1d6" stroke="#c76a12" stroke-width="1.2"/>
 <rect x="1125.7" y="627.2" width="12.1" height="2.4" fill="#ffd27a" stroke="#c76a12" stroke-width="1.2"/>
-<rect x="1565.5" y="593.9" width="17.1" height="416.1" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
-<rect x="1117.1" y="992.9" width="448.4" height="17.1" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="1565.5" y="593.9" width="17.1" height="373.3" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
+<rect x="1117.1" y="950.1" width="448.4" height="17.1" fill="#2b2b2b" stroke="#1d1b18" stroke-width="1.2"/>
 <rect x="1122.8" y="938.8" width="442.7" height="11.4" fill="#e2c99c" stroke="#7b7468" stroke-width="1.2"/>
 <text x="1126.6" y="787.7" fill="#7b7468" transform="rotate(-90 1126.6 787.7)" text-anchor="middle">display window</text>
+<text x="1341.3" y="992.6" fill="#fff" text-anchor="middle">base 45 mm</text>
 <path d="M1131.7,636.7 L1127.9,910.2 L1350.2,910.2 Z" fill="#ffd27a" opacity="0.18"/>
 <rect x="1119.0" y="612.9" width="76.0" height="85.5" fill="none" stroke="#6d7a86" stroke-width="1.2" stroke-dasharray="5 3"/>
 <text x="1157.0" y="715.5" fill="#6d7a86" text-anchor="middle">SDS-210 stay</text>
