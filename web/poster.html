@@ -60,7 +60,7 @@ h1 span { color: var(--led); }
 } }
 </script>
 <script type="module">
-import { loadData, makeMaterials, buildBench, buildTable, ringPlacements, createStage, registerGlow, lidAnimator, setLids, fmt } from './viewer.js';
+import { loadData, makeMaterials, buildBench, buildBase, buildTable, ringPlacements, createStage, registerGlow, lidAnimator, setLids, fmt } from './viewer.js';
 
 const data = await loadData();
 const P = data.params;
@@ -120,6 +120,7 @@ for (const pl of ringPlacements(data)) {
   registerGlow(stage, b.userData.glow, 0.12, 0.65);
   benches.push(b);
 }
+stage.root.add(buildBase(data, 'ring_hw', mats));   // conduit couplings, corner spacers, bolts
 const table = buildTable(data, mats);
 stage.root.add(table);
 registerGlow(stage, table.userData.glow, 0.0, 1.1);

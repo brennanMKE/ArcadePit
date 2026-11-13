@@ -7,7 +7,7 @@ start.
 - [bench.md](bench.md): bench module construction
 - [hinge.md](hinge.md): lid hinge, stays and rope limiter
 - [lighting.md](lighting.md): display lighting
-- [power.md](power.md): base, locating pins and 5 V power
+- [power.md](power.md): shared base, conduit, control box and 5 V power
 - [display-contents.md](display-contents.md): display prop themes
 - [workflow.md](workflow.md): scripts, outputs and viewers
 - [open-items.md](open-items.md): pending decisions and measurements
@@ -51,3 +51,7 @@ How the design got to where it is, so the reasons aren't lost.
    its end of the pit.
 10. **Solid ends.** The end windows were removed. Each bench has one window on its outer face, and the ends are
     solid wood for structural strength.
+11. **Shared base with conduit.** The separate bases and the plug-in connector under each bench were replaced.
+    Each half of the ring now has a shared base of bolted sections that holds the pit shape. ¾″ conduit runs
+    through it, carrying one unbroken cable per bench. The cable passes through a cord grip and grommet and plugs
+    into a control box (fuse, ESP32) with a locking GX16 connector.

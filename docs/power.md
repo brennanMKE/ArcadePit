@@ -1,99 +1,122 @@
-# Base, Locating and 5 V Power
+# Shared Base, Conduit and 5 V Power
 
-Model: `base_parts()` and `power_parts_bench()` in `cad/arcade_pit.py`. Calculator: `cad/power_calc.py`.
-Generated outputs: [`out/power/power_sheet.md`](../out/power/power_sheet.md) and `out/power/wiring_plan.svg`.
+Model: `base_parts()`, `ring_hardware()` and `power_parts_bench()` in `cad/arcade_pit.py`. Calculator:
+`cad/power_calc.py`. Generated outputs: [`out/power/power_sheet.md`](../out/power/power_sheet.md) and
+`out/power/wiring_plan.svg`.
 
 ## Goals
 
-- Get 5 V to every bench, with a separate feed to each one so every LED gets enough power.
-- Stop the benches from wandering.
-- Keep each bench a two-person carry: set it down and it's connected; lift it and it's free.
+- One base that holds every bench in the pit shape and carries the conduit for the power cables.
+- No single huge part: the base comes apart into sections that interlock when assembled.
+- 5 V to every bench on its own cable, so every LED gets enough power.
+- Durable: no splices in the runs, strain relief at every point where a cable could be pulled, and locking
+  connectors.
 
-## Base
+## Shared base
 
-Each bench drops onto its own low base. There's no deck.
+The walk-in gaps split the ring into a **west** half and an **east** half. Each half has its own shared base, shaped
+like a U: 3 sections across the player end and 1 down each side. So no part of the base crosses a walkway.
 
 | | Value |
 |---|---|
 | Height | 45 mm |
-| Construction | Open-bottom frame of 18 mm black ply rails under a 12 mm black ply top plate |
-| Footprint | Full bench length (1 mm seams), set back 20 mm from the display face and the seat front, like a toe kick |
-| Rails | Front, back, both ends, and one centre rail |
-| Cable slots | 22 mm tall: through both end rails and the centre rail, and at both ends of the back rail, so a run can pass under neighbouring benches, including around the corners |
-| Weight | About 4.3 kg each |
+| Sections | One per bench position, 890 mm long, about 4.3 kg each: 4 standard, 4 corner, 2 power |
+| Construction | Open-bottom frame of 18 mm ply rails (front, back, two ends and two intermediate) under a 12 mm ply top plate |
+| Footprint | Set back 20 mm from the display face and the seat front, like a toe kick |
+| Locating | 2 steel bushings in the top plate per bench. The bench's chamfered 12 mm pins drop into them |
 
-**Height is unchanged.** The 45 mm base fills the empty space that used to sit under the display floor. The carcass
-now starts at 45 mm. The bench bottom (18 mm) and display floor (12 mm) sit directly on it, so the display floor
-is still 75 mm up, level with the bottom of the window. Seat height, window size and display height are all
-unchanged. `arcade_pit.py` asserts `BASE_H + T + T_FLOOR == FLOOR_Z`.
+**Height is unchanged.** The base fills the empty space that used to sit under the display floor. The bench bottom
+(18 mm) and display floor (12 mm) sit on it, so the display floor is still 75 mm up, level with the bottom of the
+window. `arcade_pit.py` asserts this, and checks that nothing in the base pokes up into the bench above.
 
-## Locating pins
+### How the sections interlock
 
-- 2 hardened steel dowel pins per bench: 12 mm diameter, 43 mm long, chamfered tip. They're fixed through the
-  bench bottom on the depth centreline, 90 mm from each end.
-- They stick out 25 mm below the bench and drop into steel bushings (12 mm bore) in the base top plate.
-- The pins hold the bench in place sideways, and the bench's weight (about 28 kg) keeps it seated. If you want the
-  ring more rigid, add barrel bolts or connector bolts between neighbouring bases.
+- **Straight seams** (between the 3 sections across each player end): the end rails of neighbouring sections bolt
+  together with 2 M8 connector bolts and barrel nuts. A slip coupling joins the conduit across the seam.
+- **Corners** (side section to end section): the side section's end sits 21 mm from the end section's back rail
+  (20 mm toe kick plus the 1 mm seam). Two hardwood spacers fill that gap, and an M8 bolt through each one locks
+  the side section's end rail to the end section's back rail. A short conduit nipple goes through the back rail
+  into a pull box in the end section, with a slip coupling at the side section.
+- The benches sit on top, each held by its pins. Bolting the sections makes each half one rigid U.
+- The CAD script checks that the corner nipples enter their pull boxes, and that the spacers touch both rails.
 
-## Blind-mate connector
+### Section types
 
-- An **Anderson Powerpole** pair: red for +5 V, black for GND, rated 45 A and genderless.
-- **Bench half:** fixed in the bench bottom under the left end (bench-local X = 40, Y = 48 mm), sticking out 12 mm
-  below.
-- **Base half:** in a floating ply bracket screwed to the base's front rail, under a pocket in the top plate. The
-  bracket gives it about 0.6 mm of float, so the pins do the aligning.
-- **Sequence:** the pins enter their bushings **13 mm** before the connector halves touch. The CAD script asserts
-  that the pins stick out at least 8 mm further than the connector.
-- Use the same red/black orientation on every bench and base, so any bench fits any base.
-- The base half is always live, so it's the shrouded side. The contacts sit back inside the housing, and each run
-  has its own fuse in case a coin or screw shorts the pocket.
+| Type | Where | Extra parts |
+|---|---|---|
+| Standard (`pit_base.step`) | Both side positions on each long side | none |
+| Corner (`pit_base_corner.step`) | Outer two end positions at each player end | Pull box where the side run joins |
+| Power (`pit_base_power.step`) | Middle end position | Fuse block, Powerpole feeder inlet in the outer rail |
 
-## Inside the bench
+All three have the same frame, conduit, holes and outlet box, so the benches are identical and fit any position.
 
-A black wire chase, 9.5 × 30 mm, runs up the inside of the display face at the left end. It's hidden behind the
-45 mm side border, and the display floor is notched around it. It goes from the connector to the end of the LED
-header, where the pair feeds the left end of the strip. A second pair runs back along the LED channel, behind the
-strip, and feeds the right end, so the strip is powered from both ends. The display props stay clear of the chase.
+## Conduit
 
-## Distribution
+- 3/4″ schedule 40 PVC (26.7 mm OD) runs along the back of each section, 440 mm from the display face and 16 mm up
+  its centreline. It passes through holes in the rails and fits under the top plate.
+- Every back rail has an entry hole for a corner run, in the same place on every section.
+- **Cables are pulled once**, after the base is assembled. Each bench gets one unbroken cable from the fuse block. The
+  seams have conduit couplings, but no electrical joints.
 
-The two walk-in gaps split the ring into a **west** half and an **east** half of 5 benches each. Each half gets its
-own supply, so no wire crosses a walkway.
+## From the base into the bench
 
-```
- wall outlet → 5 V supply (outside the pit, behind the player end)
-            → feeder, 10 AWG → Powerpole inlet on the outer rail of the power base
-            → fused distribution block in the power base (middle bench at that end)
-            → one fused run per bench, through the base cable slots → base connector
-```
+1. **Outlet box** on the conduit under the left end of each bench position.
+2. **Cord grip** (PG9 or M16 gland) in the base top, above the outlet box. This is the strain relief where the cable
+   leaves the base. Leave about 300 mm of slack.
+3. **Grommet**, 35 mm, in the bench bottom directly above. It's big enough for the GX16 plug to pass through.
+4. **Cable chase:** a birch box in the back-left corner of the bench, from the display floor up to the control box.
+5. **GX16 4-pin aviation plug**, screw-locking, into the control box's panel socket. Two pins carry +5 V and two
+   carry GND (2.9 A load). A P-clip holds the cable just before the plug, so a pull on the cable doesn't load the
+   connector.
 
-- **Power base:** the base under the middle bench at each player end. It's a standard base plus a 6-way blade fuse
-  block and a Powerpole feeder inlet in the outer rail. Benches are still all identical; only the two power bases
-  differ (`pit_base_power.step`).
-- **Supply:** outside the pit, so there's no mains wiring inside the furniture. It plugs into the wall.
+**To move a bench:** open the lid, unscrew the GX16, pass the plug down through the grommet and lift the bench off
+its pins. The cable stays in the base.
+
+## Control box (one per bench)
+
+About 140 × 34 × 80 mm. It's mounted high on the back liner at the left end, under the lid, above the tallest
+display items. Lifting the lid gives direct access to it.
+
+- The bench fuse (5 A) and a terminal block. Use ferrules on every wire.
+- A 1000 µF 10 V capacitor across the strip input.
+- An ESP32 dev board (5 V in, with its own 3.3 V regulator).
+- A 74AHCT125 level shifter, taking the ESP32's 3.3 V data up to 5 V for the LED strip.
+- Two cable glands for the LED feeds.
+
+The LED feed runs from the box along a black raceway on the left end liner, below the stays. It turns up a short chase
+behind the left side border into the LED header, feeding the left end of the strip. A second pair runs back along
+the LED channel to feed the right end.
+
+**Fuses at both ends:** the fuse block in the power base protects each cable in the conduit. The fuse in the control
+box protects the bench.
+
+## Supplies
+
+Each supply sits outside the pit, behind its player end, and plugs into the wall. A short 10 AWG feeder runs into the
+Powerpole inlet on the power base. There's no mains wiring in the furniture.
 
 ## Numbers (defaults: 18 W/m strip, 2 m feeder)
 
 | | Value |
 |---|---|
 | Load per bench | 802 mm strip at 18 W/m (5 V WS2812B-class, 60/m, full white) = **2.9 A** |
-| Fuse per run | 5 A blade |
+| Fuse per run | 5 A at the fuse block, and 5 A in the control box |
 | Load per half | 14.4 A |
-| Supply per half | Mean Well LRS-150F-5 (22 A), trimmed to about 5.25 V |
-| Feeder | 2 m, 10 AWG |
-| Runs | 1.2–3.1 m. 18 AWG for the shortest, 14 AWG for the longest. Buy 14 AWG for all of them to keep it simple |
-| Voltage at each bench, full white | 4.89–4.92 V |
+| Supply per half | Mean Well LRS-150F-5 (22 A), trimmed to about 5.3 V |
+| Runs | 1.0–2.5 m along the conduit. 16 AWG covers every run; 14 AWG gives more margin |
+| Voltage at each bench, full white | 4.92–4.99 V |
 
-Re-run when the strip is chosen, or the supply location is known:
+Re-run once the strip is chosen or the supply location is known:
 
 ```sh
 python3 cad/power_calc.py --strip-w-per-m 14.4 --feeder-m 3
 ```
 
 Options: `--strip-w-per-m`, `--feeder-m`, `--slack-m` (default 0.6 m per run), `--run-budget-v` (0.20 V) and
-`--feeder-budget-v` (0.15 V). Runs follow the ring through the bases and never cross the open floor of the pit.
+`--feeder-budget-v` (0.15 V). Runs follow the conduit along the end, round the corner pull box and along the side.
 
 ## Parameters
 
-At the top of `cad/arcade_pit.py`: `BASE_H`, `BASE_TOP`, `BASE_RAIL`, `BASE_SET`, `PIN_R`, `PIN_L`, `PIN_X`, `PP`,
-`PP_L`, `CONN_X`, `CONN_Y`, `CONN_DROP` and `CHASE_X`/`CHASE_Y`.
+At the top of `cad/arcade_pit.py`: `BASE_H`, `BASE_TOP`, `BASE_RAIL`, `BASE_SET`, `BASE_MID_RAILS`, `PIN_*`,
+`C_Y`, `C_Z`, `C_R`, `COUPLER_*`, `OUTLET_X`, `GLAND_XY`, `GROMMET_R`, `JUNCTION_X`, `BCHASE`, `CTRL` and
+`LED_RACE_Z`.

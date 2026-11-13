@@ -21,12 +21,12 @@ a mesh bundle for the browser viewers.
 | Walk-in gaps | 2, centred on the long sides, 915 mm | 36″ |
 | Knee room to table | 496 mm at player ends, 465 mm on long sides | 19.5″ / 18.3″ |
 | Bench weight (estimate) | ~30 kg | ~66 lb, a two-person carry |
-| Base | 45 mm, set back 20 mm; the bench drops on with 2 locating pins | 1¾″ |
+| Base | Shared 45 mm base per half of the ring, in bolted sections; holds the pit shape and carries the conduit | 1¾″ |
 | Storage per bench | ~141 L | ~5 ft³ |
 | Lid hinge | Steel piano hinge, 865 mm, wrapped on the outer top corner | 34″ |
 | Lid hold / stop | Soft-down stays hold at 105°, rope limiter stops at 108° | |
 | Display lighting | Down-facing LED strip in a routed header behind the front acrylic, opal diffuser | |
-| Power | 5 V through a blind-mate Powerpole connector in each base; one fused run per bench, one supply per half of the ring | |
+| Power | One unbroken, fused 5 V cable per bench through ¾″ conduit; cord grip, grommet and locking GX16 into a control box (fuse + ESP32) | |
 
 ## Layout
 
@@ -54,7 +54,7 @@ cad/
   hinge_calc.py      Hinge/stay/rope calculator; writes the section SVG and build sheet
   power_calc.py      5 V power plan: wire gauges, fuses, supplies; writes the power sheet and wiring plan
 web/
-  benches.html       Bench module viewer (lid slider, spec sheet, lighting notes, lifted-off-base view)
+  benches.html       Bench module viewer (lid slider, spec sheet, lighting notes, Base view: a corner lifted off the shared base)
   pit.html           Whole-pit viewer
   poster.html        Print layout used to render out/print/arcade_pit_print.png
   viewer.js          Shared three.js loader/materials/lid animation
@@ -98,7 +98,7 @@ See [docs/workflow.md](docs/workflow.md) for the full regeneration pipeline, inc
 | [docs/bench.md](docs/bench.md) | Bench module construction, materials, cut dimensions |
 | [docs/hinge.md](docs/hinge.md) | Lid hinge, stays, rope limiter, wall clearance |
 | [docs/lighting.md](docs/lighting.md) | LED header, routed channel and diffuser |
-| [docs/power.md](docs/power.md) | Base, locating pins, blind-mate 5 V connector, wiring and supplies |
+| [docs/power.md](docs/power.md) | Shared base and joints, conduit, strain relief, control box, supplies |
 | [docs/display-contents.md](docs/display-contents.md) | Display prop themes |
 | [docs/workflow.md](docs/workflow.md) | Scripts, outputs, viewers, print render, checks |
 | [docs/open-items.md](docs/open-items.md) | Decisions pending and things still to measure |

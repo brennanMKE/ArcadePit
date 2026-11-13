@@ -98,6 +98,8 @@ export function makeMaterials() {
     glow_green: new THREE.MeshBasicMaterial({ color: 0x9bbc0f }),
     glow_warm: new THREE.MeshBasicMaterial({ color: 0xffd166 }),
     glow_blue: new THREE.MeshBasicMaterial({ color: 0x4cc9f0 }),
+    pvc: new THREE.MeshStandardMaterial({ color: 0xbfc3c7, roughness: 0.5 }),
+    ctrl: new THREE.MeshStandardMaterial({ color: 0x2b2d31, roughness: 0.5, metalness: 0.1 }),
     base_ply: new THREE.MeshStandardMaterial({ color: 0x3b3936, roughness: 0.6, metalness: 0.05 }),
     pp_red: new THREE.MeshStandardMaterial({ color: 0xc62828, roughness: 0.4 }),
     pp_black: new THREE.MeshStandardMaterial({ color: 0x1c1c1c, roughness: 0.4 }),
@@ -224,10 +226,10 @@ export function buildBench(data, variant, mats, { lights = true, contents = null
   return group;
 }
 
-/** Just a base (no bench), for exploded views. */
-export function buildBase(data, name, mats) {
+/** A base section, or the pit-level base joints ('ring_hw'), without a bench. */
+export function buildBase(data, name, mats, keep = null) {
   const g = new THREE.Group();
-  for (const p of data.variants[name].parts) g.add(meshFor(p, mats));
+  for (const p of data.variants[name].parts) if (!keep || keep(p.name)) g.add(meshFor(p, mats));
   g.userData = { lids: [], items: [], glow: [], ropes: [] };
   return g;
 }

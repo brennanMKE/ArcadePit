@@ -37,13 +37,13 @@ def local_to_pit(pl, lx, ly):
     return x + lx * math.cos(r) - ly * math.sin(r), y + lx * math.sin(r) + ly * math.cos(r)
 
 
-def ring_path(P, start, end, half_sign):
-    """Route through the bases: along the end-bench centreline, then along the side-bench
-    centreline (the ring), never across the open pit floor."""
-    xe = half_sign * (P["OUTER_L"] / 2 - P["D"] / 2)
-    ys = P["OUTER_W"] / 2 - P["D"] / 2
+def ring_path(P, start, end, half_sign, c_y, is_end):
+    """Route along the conduit in the shared base: down the end run, round the corner pull box,
+    along the side run; never across the open pit floor."""
+    xe = half_sign * (P["OUTER_L"] / 2 - c_y)
+    ys = P["OUTER_W"] / 2 - c_y
     (fx, fy), (cx, cy) = start, end
-    if abs(abs(cx) - abs(xe)) < P["D"]:                 # end bench: stay in the end column
+    if is_end:                                           # end bench: stay in the end run
         return [(fx, fy), (xe, fy), (xe, cy), (cx, cy)]
     yr = math.copysign(ys, cy)                           # side bench: up the end, along the side
     return [(fx, fy), (xe, fy), (xe, yr), (cx, yr), (cx, cy)]
@@ -79,7 +79,8 @@ def compute(data, a):
         runs = []
         for i in idx:
             cx, cy = local_to_pit(places[i], *pw["conn"])
-            path = ring_path(data["params"], (fx, fy), (cx, cy), -1 if half == "west" else 1)
+            path = ring_path(data["params"], (fx, fy), (cx, cy), -1 if half == "west" else 1, pw["c_y"],
+                             places[i]["side"] in ("west", "east"))
             length = path_len(path) + a.slack_m
             g = pick_gauge(length, amps, a.run_budget_v)
             runs.append({"bench": i, "side": places[i]["side"], "conn": (cx, cy), "path": path, "len_m": length, "awg": g,
@@ -108,17 +109,27 @@ def sheet(data, a, amps, fuse, plan):
         "",
         "## System",
         "",
-        "- The walk-in gaps split the ring into a **west** and an **east** half of 5 benches. Each half has its own 5 V "
-        "supply, so no wiring crosses a walkway.",
+        "- The walk-in gaps split the ring into a **west** and an **east** half of 5 benches. Each half has its own "
+        "shared base and its own 5 V supply, so no base or cable crosses a walkway.",
+        "- Each half's base is built from one section per bench, bolted together at the seams and, at the corners, "
+        "through two hardwood spacers into the end section's back rail.",
+        "- **3/4\" PVC conduit** runs along the back of every base section. Slip couplings join it at the seams, and "
+        "a short nipple and coupling take it into a **pull box** at each corner. Pull the cables once the base is "
+        "assembled.",
         "- Each supply sits outside the pit, behind its player end, and plugs into the wall. A short heavy feeder runs "
-        "into a Powerpole inlet on the outer rail of the **power base**, under the middle end bench.",
-        "- The power base holds a fused distribution block. From it, **one separate run per bench** goes through the "
-        "cable slots in the bases to that bench's base connector.",
-        "- Each bench drops onto its base. Two steel locating pins enter their bushings "
-        f"{P.get('pin_l', data['power']['pin_l']) - data['power']['conn_drop']:.0f} mm before the Powerpole halves "
-        "meet, so the pins align the connector and the bench's weight mates it.",
-        "- Inside the bench, the pair runs up the wire chase (hidden behind the left side border) into the LED header "
-        "and feeds the strip's left end. A second pair runs back along the LED channel and feeds the right end.",
+        "into a Powerpole inlet on the outer rail of the **power base**, under the middle end bench. The power base holds "
+        "the **fuse block**: one fuse per run, protecting that bench's cable.",
+        "- **One unbroken cable per bench** runs from the fuse block through the conduit to an **outlet box** under that "
+        "bench's left end. It leaves the base through a **cord grip** in the base top (strain relief), with about 300 mm "
+        "of slack.",
+        "- The cable goes up through a 35 mm grommet in the bench bottom and up a birch chase in the back-left corner. "
+        "It ends in a **GX16 4-pin aviation plug** (2 pins +5 V, 2 pins GND) that screws into the bench's **control box**. "
+        "A P-clip holds the cable just before the plug, so pulling on the cable doesn't load the connector.",
+        "- The **control box** sits high on the back liner, under the lid. It holds the bench fuse, a 1000 µF capacitor, "
+        "a terminal block (ferruled wires), the ESP32 and a 74AHCT125 level shifter for the LED data line. The LED feed "
+        "leaves through cable glands and runs along the left end to the header, feeding both ends of the strip.",
+        "- To move a bench: open the lid, unscrew the GX16, feed the plug down through the grommet and lift the bench "
+        "off its pins. The cable stays in the base.",
         "",
         "## Load",
         "",
@@ -159,24 +170,28 @@ def sheet(data, a, amps, fuse, plan):
         "|---|---|",
         f"| 5 V supply ({', '.join(sorted({h['psu'][0] for h in plan.values()}))}), in a ventilated cover with a "
         "grounded mains cord | 2 |",
-        "| Blade fuse block, 6-way, with cover | 2 |",
-        f"| Blade fuses, {fuse:g} A (one per run, plus spares) | {n + 4} |",
+        f"| Blade fuse block, 6-way, with cover, plus {fuse:g} A fuses (one per run) | 2 blocks, {n + 4} fuses |",
         "| Main fuse holder, inline, at each block input | 2 |",
-        "| Anderson Powerpole 45 A housings, red and black, with contacts | "
-        f"{2 * (2 * n + 2)} housings (bench + base half per bench, feeder ends) |",
-        "| Powerpole panel-mount clamp for the feeder inlet | 2 |",
-        f"| Two-conductor wire for the runs (see tables), red/black | ~{sum(r['len_m'] for h in plan.values() for r in h['runs']) + 1:.0f} m |",
+        "| Powerpole 45 A pair + panel clamp (feeder inlet) | 2 |",
+        f"| Two-conductor cable for the runs, red/black (see tables) | ~{sum(r['len_m'] for h in plan.values() for r in h['runs']) + 3:.0f} m |",
         f"| Feeder pair, {max(h['feeder_awg'] for h in plan.values())} AWG or heavier | ~{2 * a.feeder_m + 1:.0f} m |",
-        "| Hardened steel dowel pins, 12 mm, chamfered tip, 43 mm long | 20 |",
-        "| Steel bushings, 12 mm bore, 16 mm OD, 12 mm long | 20 |",
-        "| Adhesive cable clips for the wire chase and LED channel | as needed |",
+        "| 3/4\" PVC conduit (one length per base section, plus 4 corner nipples) | ~10 m |",
+        "| 3/4\" PVC slip couplings | 8 |",
+        "| PVC pull box (corners) | 4 |",
+        f"| PVC outlet box (one per bench) | {n} |",
+        f"| Cord grip / cable gland, PG9 or M16, at each outlet | {n} |",
+        f"| GX16 4-pin aviation connector, panel socket + cable plug | {n} pairs |",
+        f"| Control box (ABS enclosure, about 140 × 34 × 80 mm) | {n} |",
+        f"| In each control box: fuse holder + {fuse:g} A fuse, 1000 µF 10 V capacitor, terminal block, ESP32 dev board, 74AHCT125, 2 cable glands | {n} sets |",
+        "| P-clips, ferrules, 35 mm grommets | as needed |",
+        "| Hardened steel dowel pins, 12 mm, chamfered tip, 43 mm long + 12 mm bushings | 20 + 20 |",
+        "| Base joints: M8 connector bolts with barrel nuts (2 per straight seam, 2 per corner) | 16 |",
+        "| Hardwood spacers, 21 × 80 × 27 mm (2 per corner) | 8 |",
         "",
         "## Notes",
         "",
-        "- The bench half of each Powerpole pair is fixed in the bench bottom. The base half floats in its bracket, "
-        "so the pins do the aligning. Use the same red/black orientation everywhere so any bench fits any base.",
-        "- The base half is always live, so it is the shrouded side. Powerpole contacts sit back inside the housing, "
-        "but keep the pocket clear of coins and screws. The per-run fuse limits the current if something does short it.",
+        "- Wire the GX16 the same way on every bench (pins 1+2 = +5 V, 3+4 = GND), so any bench fits any position.",
+        "- Fuses at both ends: the fuse block protects each cable, and the fuse in the control box protects the bench.",
         "- To buy one wire size, use 14 AWG for every run. It meets the drop budget on all of them.",
         "- Re-run with the real strip's W/m once it is chosen: `--strip-w-per-m`.",
         "",

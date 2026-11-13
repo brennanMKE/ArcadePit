@@ -22,10 +22,11 @@ In order, this:
 3. Asserts that the hinge leaf fits within the lid thickness, that the base, bench bottom and display floor stack
    up to the window, and that the pins engage before the connector.
 4. Checks that every part is a valid, non-empty solid, and prints part counts, volumes and bounding boxes.
-5. Builds both bases, and checks that the pins clear the base frame.
+5. Builds the three base section types and the joints between them. Checks that the pins clear the frame and
+   conduit, and that nothing in the base pokes up into a bench.
 6. Builds the 5 display themes, and checks that each one fits inside the bench.
-7. Places 10 benches on their bases (power bases under the middle bench at each end) and the table, and checks
-   that no benches overlap.
+7. Places 10 benches on the shared base (power sections under the middle bench at each end, corner sections at
+   the outer ends) and the table, and checks that no benches overlap.
 8. Writes the outputs below, and prints the bench spec and layout parameters.
 
 ### Outputs
@@ -33,9 +34,10 @@ In order, this:
 | File | Contents |
 |---|---|
 | `out/pit_bench.step` | One bench, every part labelled |
-| `out/pit_base.step` | Standard base |
-| `out/pit_base_power.step` | Power base: standard base plus fuse block and feeder inlet |
-| `out/arcade_pit_assembly.step` | The full pit: 10 benches, 10 bases and the table (props not included) |
+| `out/pit_base.step` | Standard base section |
+| `out/pit_base_corner.step` | Corner section: adds the pull box where a side run joins |
+| `out/pit_base_power.step` | Power section: adds the fuse block and feeder inlet |
+| `out/arcade_pit_assembly.step` | The full pit: 10 benches, 10 base sections, the joints (couplings, spacers, bolts) and the table (props not included) |
 | `out/pit_meshes.json` | Tessellated meshes, placements, pivots, lights and specs for the web viewers |
 
 ## Hinge calculator
@@ -63,7 +65,7 @@ directory through `viewer.js`.
 
 | Page | Shows |
 |---|---|
-| `benches.html` | One bench module: lid slider to 108°, theme picker, spec sheet, lighting and power sections. The **Base** view shows a bench lifted off its base |
+| `benches.html` | One bench module: lid slider to 108°, theme picker, spec sheet, lighting and power sections. The **Base** view shows a corner lifted off the shared base, with the top plates see-through |
 | `pit.html` | The whole pit around the table |
 | `poster.html` | The print layout |
 
@@ -107,5 +109,5 @@ They're all at the top of `cad/arcade_pit.py`:
 | Layout | `CLEAR_END`, `CLEAR_SIDE`, `END_BENCHES`, `GAP_MIN`, `D` |
 | Bench | `H`, `T_TOP`, `T`, `T_ACR`, `T_LINER`, `T_FLOOR`, `SEAM`, `BORDER_*`, `LINER_NOTCH_*` |
 | Lighting | `HEADER_D`, `LED_CH_W`, `LED_CH_D`, `DIFF_W`, `DIFF_T` |
-| Base and power | `BASE_*`, `PIN_*`, `PP`, `PP_L`, `CONN_*`, `CHASE_*` |
+| Base and power | `BASE_*`, `PIN_*`, `C_*`, `COUPLER_*`, `OUTLET_X`, `GLAND_XY`, `GROMMET_R`, `JUNCTION_X`, `BCHASE`, `CTRL`, `LED_RACE_Z` |
 | Hinge | from `hinge_calc.Inputs()` defaults |

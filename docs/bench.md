@@ -14,7 +14,7 @@ Each bench has one window, on its outer face. The ends are solid wood for struct
 | Clear display height | 363 mm (display floor to lid) |
 | Storage volume | ~141 L |
 | Estimated weight | ~30 kg (66 lb): ply 680 kg/m³, acrylic 1190 kg/m³, steel 8000 kg/m³ |
-| Sits on | A 45 mm base (see [power.md](power.md)); the carcass starts 45 mm above the floor |
+| Sits on | The shared 45 mm base (see [power.md](power.md)); the carcass starts 45 mm above the floor |
 
 ## Materials
 
@@ -41,11 +41,14 @@ Each bench has one window, on its outer face. The ends are solid wood for struct
   The liner is notched at the top front (200 mm deep × 125 mm tall), so the lid stay and rope eye screw into the
   solid 18 mm panel, not the thin liner.
 - **Bottom:** 18 mm, between the ends, resting on the base top plate at 45 mm. It carries the 2 locating pins and
-  the bench half of the Powerpole connector ([power.md](power.md)).
-- **Wire chase:** a 9.5 × 30 mm black raceway up the inside of the display face at the left end, hidden behind
-  the side border, from the connector to the LED header.
+  a 35 mm grommet for the power cable, under the back-left corner ([power.md](power.md)).
+- **Cable chase:** a 30 × 38 mm birch box in the back-left corner, from the display floor up to the control box.
+- **Control box:** about 140 × 34 × 80 mm, high on the back liner at the left end, under the lid. It holds the fuse,
+  ESP32 and level shifter, with a GX16 inlet underneath.
+- **LED feed:** a black raceway along the left end liner, below the stays, then a short chase behind the left side
+  border up into the LED header.
 - **Display floor:** 12 mm ply, directly on the bottom, top surface level with the bottom of the window (75 mm
-  above the floor). Notched around the wire chase.
+  above the floor). Notched around the cable chase.
 - **Back liner:** 6 mm ply against the inside of the seat-front panel, above the display floor.
 - **Lid:** one full-depth 3/4″ lid, 890 mm long (1 mm seam each side), flush with the display face at the back. No
   rear overhang. The underside has a rabbet for the hinge leaf and a relief for the knuckle.

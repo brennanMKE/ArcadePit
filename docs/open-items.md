@@ -9,8 +9,10 @@
   re-run `python3 cad/power_calc.py --strip-w-per-m <W/m>`.
 - **Supply location.** Assumed to be outside the pit, 2 m from each power base. Set `--feeder-m` once the outlets
   are known.
-- **Joining the bases.** The pins hold each bench to its base. Decide whether the bases should also be bolted to
-  each other or fixed to the floor.
+- **ESP32 control.** One per bench, over Wi-Fi, is assumed. The GX16 has room for a shared data line if one
+  controller should drive every bench instead.
+- **Fixing to the floor.** The base halves are bolted into rigid Us but sit loose on the floor. Add anti-slip pads
+  or floor fixings if needed.
 
 ## To measure before cutting
 
@@ -19,7 +21,8 @@
 | Hinge leaf thickness | Sets the rabbet depth (nominal 0.060″) | `--leaf` and the `Inputs.leaf_thickness_in` default |
 | Actual lid weight | Stay count and rating: 6.5 lb per stay is borderline for the SDS-210 | `--lid-weight-lb`, then check Sugatsune's chart |
 | Clearance behind each bench on site | The lid needs 175 mm (6.9″) to reach the rope stop | `--wall` |
-| Powerpole housing positions | Check the mated length against the datasheet, and set `CONN_DROP` | `cad/arcade_pit.py` |
+| Control box enclosure | Confirm it fits the parts, and set `CTRL` | `cad/arcade_pit.py` |
+| Conduit fill | At most 2 cables share any length of conduit (one end bench and one side bench on each side of the fuse block). Check they fit 3/4″ conduit with the cable you choose | Go up to 1″ only with a taller base |
 | Stay envelope against the 363 mm interior height | Check with Sugatsune's installation drawing | Adjust `LINER_NOTCH_Y` / `LINER_NOTCH_H` if needed |
 
 After changing `hinge_calc.Inputs` defaults, re-run both `cad/hinge_calc.py` and `cad/arcade_pit.py`, then

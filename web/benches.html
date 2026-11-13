@@ -117,8 +117,9 @@ const MATS = [
   ['rgba(220,235,255,.35)', '6 mm clear acrylic window on the outer face'],
   ['#fff1d6', 'Warm-white LED strip facing down, in a routed channel behind the acrylic, under an opal diffuser'],
   ['#c9a678', 'Birch liner and display floor'],
-  ['#3b3936', 'Base: 45 mm charcoal ply frame, set back 20 mm, cable slots through every rail'],
-  ['#c62828', '5 V blind-mate connector: Anderson Powerpole pair, red +5 V / black GND'],
+  ['#3b3936', 'Shared base: one 45 mm section per bench, bolted together; corners joined through hardwood spacers'],
+  ['#bfc3c7', '¾″ PVC conduit along the back of the base, slip couplings at every joint, pull box at each corner'],
+  ['#2b2d31', 'Control box under the lid: fuse, ESP32, level shifter, 1000 µF cap; GX16 locking inlet'],
   ['#f2a20c', 'Collection: carts, discs, consoles and toys (five themed sets rotate around the pit)'],
 ];
 const dim = (mm) => `${fmt.mm(mm)} <small>${fmt.ftin(mm)}</small>`;
@@ -137,7 +138,7 @@ function renderSpec(view) {
     ['Empty weight, approx.', `${sp.weight_kg} kg <small>${Math.round(sp.weight_kg * 2.2)} lb</small>`],
   ].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
   const blurb = view === 'base'
-    ? `The bench lifted off its base. The two steel pins under the bench drop into the bushings in the base top, and the red/black Powerpole half under the left end plugs into the floating half in the base. Every base has cable slots through its rails, so each bench's own 5 V run passes under its neighbours.`
+    ? `A corner with both benches lifted off the shared base. Each base section carries ¾″ conduit along its back. At the corner a short nipple runs through two hardwood spacers into a pull box in the end section, and two bolts lock the sections together. Each bench's own cable comes up through a cord grip under its left end, then through a grommet into the bench.`
     : view === 'corner'
     ? `How a corner closes: the end bench (three across each player end) runs to the outer corner, and the long-side bench butts into its seat face. The ends are solid wood for strength.`
     : `Length is set by the table: three benches span each player end, ${fmt.mm(P.INNER_W)} inside plus a bench depth each side. Each bench has one window on its outer face. The ends are solid 18 mm ply for strength.`;
@@ -150,7 +151,7 @@ function renderSpec(view) {
     <h3>How the display is lit</h3>
     <p>A black header is glued behind the frame's top rail, and the front acrylic slides up under it. A ½″ channel routed into the header's underside holds the LED strip facing down, just behind the acrylic, with an opal acrylic diffuser flush over it. Light falls onto the collection from the front-top, so the items are lit where people look, and the strip itself stays out of sight behind the frame.</p>
     <h3>How it sits and gets power</h3>
-    <p>Each bench drops onto its own ${sp.base.h} mm base, which fills the dead space that used to sit under the display floor, so the seat, windows and display are the same height as before. Two chamfered steel pins in the bench bottom find bushings in the base top and line the bench up ${sp.base.pin_l - data.power.conn_drop} mm before a red/black Powerpole pair meets, so setting the bench down plugs it in, and lifting it straight up unplugs it. Inside, the pair runs up a black chase hidden behind the left border into the LED header and feeds both ends of the strip. Every bench has its own fused 5 V run from a supply at its end of the pit.</p>
+    <p>The benches sit on a shared ${sp.base.h} mm base that holds them in the pit shape. It fills the dead space that used to sit under the display floor, so the seat, windows and display are the same height as before. The base is built from one section per bench, bolted together, so no piece is large. Two chamfered steel pins in each bench bottom drop into bushings in the base top. A ¾″ conduit runs through the base, and each bench gets its own unbroken, fused 5 V cable from the supply at its end of the pit. The cable leaves the base through a cord grip, goes up through a grommet and a birch chase in the back corner, and screws into the control box with a locking GX16 plug. The control box sits under the lid and holds the bench fuse and the ESP32. To move a bench, unscrew the plug and lift.</p>
     <h3>Materials</h3>
     <ul class="mats">${MATS.map(([c, t]) => `<li><span class="sw" style="background:${c}"></span>${t}</li>`).join('')}</ul>
     <p class="foot">Lid swing is checked in the CAD script from 0–108°. Leave at least 175 mm (7″) clear behind each bench. Full hinge numbers: out/hinge/build_sheet.md. Add routed handholds in the end panels and a lid latch for moving. Weight assumes 18 mm birch ply at 680 kg/m³, empty.${P.table_estimated ? ' Bench length will update once the real table dimensions are in.' : ''}</p>`;
@@ -184,19 +185,29 @@ for (const pl of [west, south]) {
   b.rotation.z = pl.rot * Math.PI / 180;
   stage.root.add(b); groups.corner.push(b);
 }
-// "base": one bench lifted off its base, to show the pins and the blind-mate connector
+const ghostTop = mats.base_ply.clone(); ghostTop.transparent = true; ghostTop.opacity = 0.28; ghostTop.depthWrite = false;
+// "base": the SW corner with both benches lifted off the shared base, to show the conduit and joints
+for (const pl of [west, south]) {
+  const b = buildBench(data, 'bench', mats, { contents: pl.contents, base: null });
+  b.position.set(pl.pos[0] - cx, pl.pos[1] - cy, 620);
+  b.rotation.z = pl.rot * Math.PI / 180;
+  const s = buildBase(data, pl.base, mats);
+  // see-through top plate so the conduit, outlet box and pull box show
+  s.traverse(m => { if (m.userData && m.userData.partName === 'base_top') m.material = ghostTop; });
+  s.position.set(pl.pos[0] - cx, pl.pos[1] - cy, 0);
+  s.rotation.z = pl.rot * Math.PI / 180;
+  stage.root.add(b, s); groups.base.push(b, s);
+}
 {
-  const lifted = buildBench(data, 'bench', mats, { contents: 0, base: null });
-  lifted.position.set(-sp.length / 2, -P.D / 2, 340);
-  const base = buildBase(data, 'base', mats);
-  base.position.set(-sp.length / 2, -P.D / 2, 0);
-  stage.root.add(lifted, base); groups.base.push(lifted, base);
+  const joints = buildBase(data, 'ring_hw', mats, (n) => n.endsWith('_ws') || n.includes('_ws_'));
+  joints.position.set(-cx, -cy, 0);
+  stage.root.add(joints); groups.base.push(joints);
 }
 const all = [...groups.one, ...groups.corner, ...groups.base];
 all.forEach(b => registerGlow(stage, b.userData.glow, 0.08, 0.35));
 stage.onFrame.push(lidAnimator(all));
 
-const VIEWS = { one: [[1.0, 0.95, 1.55], [0, 0.2, 0]], base: [[-1.35, 0.55, 1.15], [-0.15, 0.24, 0]], corner: [[-1.55, 1.55, 2.5], [0.1, 0.15, -0.1]] };
+const VIEWS = { one: [[1.0, 0.95, 1.55], [0, 0.2, 0]], base: [[1.75, 1.2, -1.25], [-0.2, 0.3, 0.25]], corner: [[-1.55, 1.55, 2.5], [0.1, 0.15, -0.1]] };
 const KEY = { one: 'b-short', corner: 'b-long', base: 'b-base' };
 let current = 'one';
 const lid = document.getElementById('lid');

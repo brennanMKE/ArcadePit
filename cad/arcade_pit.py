@@ -113,31 +113,44 @@ MULLION = 40.0
 HC = H - T_TOP     # carcass top (Z of the lid underside, from the room floor)
 FLOOR_Z = BORDER_BOT  # display floor top surface aligns with window bottom
 
-# Base: each bench drops onto its own low base.  The base fills the dead space that used
-# to sit under the display floor, so seat height, windows and display height are unchanged:
+# Shared base: one 45 mm base runs under each half of the ring (the walk-in gaps split it in two).
+# It is built from one section per bench position so no part is huge; sections bolt together
+# end to end (through their end rails) and at the corners (through a hardwood spacer into the
+# end section's back rail).  It holds the benches in the pit shape and carries the conduit.
+# The base fills the dead space under the display floor, so heights are unchanged:
 # base 45 + bench bottom 18 + display floor 12 = window bottom at 75.
 BASE_H = 45.0        # base height; the bench bottom sits on it
 BASE_TOP = 12.0      # base top plate (ply)
 BASE_RAIL = 18.0     # base frame rails (ply)
 BASE_SET = 20.0      # base set back from the display face and seat front (toe kick)
+BASE_MID_RAILS = (250.0, None)   # intermediate rails: x and length - x
 # Locating pins: steel, in the bench bottom, drop into bushed holes in the base top plate.
-# They protrude further than the connector so they align the bench before it mates.
 PIN_R = 6.0
 PIN_L = 25.0         # below the bench bottom
 PIN_X = 90.0         # from each bench end, on the depth centreline
-# Blind-mate 5 V connector: Anderson Powerpole pair (red +5 V, black GND), bench half fixed
-# in the bench bottom, base half in a floating bracket.  Under the wire chase at the left end.
-PP = 7.9             # Powerpole housing cross-section
-PP_L = 24.6          # housing length
-CONN_X, CONN_Y = 40.0, 48.0   # pair centre, bench-local
-CONN_DROP = 12.0     # bench half protrudes this far below the bench bottom (< PIN_L)
-# Wire chase: black raceway up the inside of the display face, hidden behind the 45 mm side
-# border, from the connector to the end of the LED header.  The far end of the strip is fed by
-# a pair run back along the LED channel, so both ends get power.
+# Conduit: 3/4" PVC in every section along the back of the base, joined at the seams with
+# slip couplings after assembly; cables are pulled through once, unbroken from the fuse block.
+C_Y, C_Z = 440.0, 16.0          # conduit centreline (section-local Y, Z)
+C_R, C_RI = 26.7 / 2, 11.7      # 3/4" sch 40 PVC OD / ID radius
+COUPLER_R, COUPLER_L = 16.5, 50.0
+OUTLET_X = (22.0, 92.0)         # outlet box on the conduit at each bench position (left end)
+GLAND_XY = (40.0, 452.0)        # cord grip in the base top, under the bench's cable hole
+GLAND_R = 11.0
+GROMMET_R = 18.0                # 35 mm grommeted hole in the bench bottom (GX16 plug passes)
+JUNCTION_X = (405.0, 487.0)     # corner pull box (covers the side-run entry at x = 440 or L - 440)
+# Inside the bench: a birch chase in the back-left corner takes the cable from the grommet up
+# to the control box, which sits high on the back liner under the lid (above the display).
+BCHASE = (26.0, 56.0, 446.0, D - T - T_LINER)        # x0, x1, y0, y1
+CTRL = (30.0, 170.0, 450.0, D - T - T_LINER - 2, 330.0, 410.0)   # control box (fuse, ESP32, level shifter)
+GX16_R = 8.0
+# LED feed: raceway along the left end liner (below the stays) to a short chase up to the header
+LED_RACE_Z = (290.0, 305.0)
 CHASE_X = (35.0, 44.5)
 CHASE_Y = (T + T_ACR + 1, 55.0)
+PP = 7.9             # Powerpole (feeder inlet only)
+PP_L = 24.6
 assert abs(BASE_H + T + T_FLOOR - FLOOR_Z) < 0.01, "base + bottom + display floor must meet the window"
-assert PIN_L > CONN_DROP + 8, "pins must engage before the connector"
+assert C_Z + C_R < BASE_H - BASE_TOP, "conduit must fit under the top plate"
 
 OUT = Path(__file__).resolve().parent.parent / "out"
 
@@ -236,14 +249,23 @@ def contents(rng, x0, x1, y0, y1, prefix):
 
 
 # ---------------------------------------------------------------- base + 5 V power
-def pp_pair(x_mid, y0, y1, z0, z1, tag, along="z"):
+def pp_pair(x_mid, y0, y1, z0, z1, tag):
     """Anderson Powerpole pair: red (+5 V) then black (GND) side by side along X."""
     return [Part(f"{tag}_pos", box(x_mid - PP, x_mid, y0, y1, z0, z1), "pp_red"),
             Part(f"{tag}_gnd", box(x_mid, x_mid + PP, y0, y1, z0, z1), "pp_black")]
 
 
+def cyl_x(r, x0, x1, y, z):
+    return Cylinder(r, x1 - x0, rotation=(0, 90, 0), align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+        Location((x0, y, z)))
+
+
+def tube_x(r, ri, x0, x1, y, z):
+    return cyl_x(r, x0, x1, y, z) - cyl_x(ri, x0 - 1, x1 + 1, y, z)
+
+
 def power_parts_bench(length):
-    """Bench-side power hardware: locating pins, fixed connector half, wire chase."""
+    """Bench-side hardware: locating pins, cable chase, control box with GX16 inlet, LED feed."""
     from build123d import Cone
     p = []
     for i, x in enumerate((PIN_X, length - PIN_X)):
@@ -253,49 +275,63 @@ def power_parts_bench(length):
         pin += Cone(PIN_R / 2, PIN_R, 6, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
             Location((x, D / 2, z_tip)))
         p.append(Part(f"pin_{i}", pin, "steel"))
-    z0 = BASE_H - CONN_DROP
-    p += pp_pair(CONN_X, CONN_Y - PP / 2, CONN_Y + PP / 2, z0, z0 + PP_L, "conn_bench")
-    p.append(Part("wire_chase", box(*CHASE_X, *CHASE_Y, BASE_H + T, HC - BORDER_TOP), "black"))
+    gx, gy = GLAND_XY
+    grom = Cylinder(GROMMET_R + 2, T, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((gx, gy, BASE_H)))
+    grom -= Cylinder(GROMMET_R, T + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((gx, gy, BASE_H - 1)))
+    p.append(Part("grommet", grom, "pp_black"))
+    x0, x1, y0, y1 = BCHASE
+    p.append(Part("cable_chase", box(x0, x1, y0, y1, FLOOR_Z, CTRL[4] - 20), "ply"))
+    cx0, cx1, cy0, cy1, cz0, cz1 = CTRL
+    p.append(Part("control_box", box(cx0, cx1, cy0, cy1, cz0, cz1), "ctrl"))
+    p.append(Part("ctrl_gx16", Cylinder(GX16_R, 20, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+        Location((gx, (y0 + y1) / 2, cz0 - 20))), "steel"))
+    p.append(Part("led_raceway", box(T + T_LINER, CHASE_X[1], CHASE_Y[0], y0, *LED_RACE_Z), "black"))
+    p.append(Part("wire_chase", box(*CHASE_X, *CHASE_Y, LED_RACE_Z[0], HC - BORDER_TOP), "black"))
     return p
 
 
-def base_parts(length, power=False):
-    """Low base the bench drops onto.  Open-bottom ply frame under a 12 mm top plate, with
-    cable slots through every rail so each bench's 5 V run can pass through its neighbours.
-    power=True adds the fused distribution block and the feeder inlet (middle end bench)."""
+def base_parts(length, kind="side"):
+    """One base section.  Open-bottom ply frame under a 12 mm top plate, with the conduit along
+    the back, an outlet box + cord grip at the bench's left end, and holes in every rail for the
+    conduit.  kind: "side" | "corner" (adds the pull box where a side run joins) | "power"
+    (adds the fuse/distribution block and feeder inlet)."""
     x0, x1, y0, y1 = SEAM, length - SEAM, BASE_SET, D - BASE_SET
     zt, R = BASE_H - BASE_TOP, BASE_RAIL
-    slot_z = (4.0, 26.0)
     p = []
     top = box(x0, x1, y0, y1, zt, BASE_H)
-    top -= box(CONN_X - PP - 1.5, CONN_X + PP + 1.5, CONN_Y - PP / 2 - 1.5, CONN_Y + PP / 2 + 1.5, zt - 1, BASE_H + 1)
+    gx, gy = GLAND_XY
+    top -= Cylinder(GLAND_R + 1, BASE_TOP + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+        Location((gx, gy, zt - 1)))
     for i, x in enumerate((PIN_X, length - PIN_X)):
-        hole = Cylinder(PIN_R + 2, BASE_TOP + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+        top -= Cylinder(PIN_R + 2, BASE_TOP + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
             Location((x, D / 2, zt - 1)))
-        top -= hole
         bush = Cylinder(PIN_R + 2, BASE_TOP, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
             Location((x, D / 2, zt)))
         bush -= Cylinder(PIN_R + 0.4, BASE_TOP + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
             Location((x, D / 2, zt - 1)))
         p.append(Part(f"base_bushing_{i}", bush, "steel"))
     p.append(Part("base_top", top, "base_ply"))
+    hole = lambda xa, xb: box(xa, xb, C_Y - C_R - 1.5, C_Y + C_R + 1.5, 1, zt - 1)
     front = box(x0, x1, y0, y0 + R, 0, zt)
     back = box(x0, x1, y1 - R, y1, 0, zt)
-    for a, b in ((x0 + 40, x0 + 220), (x1 - 220, x1 - 40)):
-        back -= box(a, b, y1 - R - 1, y1 + 1, *slot_z)
-    ys = (y0 + R + 60, y1 - R - 60)
-    rails = [box(x0, x0 + R, y0 + R, y1 - R, 0, zt), box(x1 - R, x1, y0 + R, y1 - R, 0, zt),
-             box(length / 2 - R / 2, length / 2 + R / 2, y0 + R, y1 - R, 0, zt)]
-    rails = [r - box(r.bounding_box().min.X - 1, r.bounding_box().max.X + 1, *ys, *slot_z) for r in rails]
-    # floating bracket for the base connector half, screwed to the front rail
-    br = box(CONN_X - 14, CONN_X + 14, y0 + R, CONN_Y + 10, 4, zt)
-    br -= box(CONN_X - PP - 0.6, CONN_X + PP + 0.6, CONN_Y - PP / 2 - 0.6, CONN_Y + PP / 2 + 0.6, 3, zt + 1)
-    p.append(Part("base_conn_bracket", br, "base_ply"))
-    z1 = BASE_H - CONN_DROP
-    p += pp_pair(CONN_X, CONN_Y - PP / 2, CONN_Y + PP / 2, z1 - PP_L, z1, "conn_base")
-    if power:
+    back -= box(length - JUNCTION_X[1] + 20, length - JUNCTION_X[0] - 20, y1 - R - 1, y1 + 1, 1, zt - 1)  # side-run entry
+    back -= box(JUNCTION_X[0] + 20 - 15, JUNCTION_X[1] - 20 + 15, y1 - R - 1, y1 + 1, 1, zt - 1)
+    rails = [box(x0, x0 + R, y0 + R, y1 - R, 0, zt), box(x1 - R, x1, y0 + R, y1 - R, 0, zt)]
+    mx = BASE_MID_RAILS[0]
+    rails += [box(mx - R / 2, mx + R / 2, y0 + R, y1 - R, 0, zt),
+              box(length - mx - R / 2, length - mx + R / 2, y0 + R, y1 - R, 0, zt)]
+    rails = [r - hole(r.bounding_box().min.X - 1, r.bounding_box().max.X + 1) for r in rails]
+    # conduit through the whole section, outlet box + cord grip at the bench's left end
+    p.append(Part("conduit", tube_x(C_R, C_RI, x0, x1, C_Y, C_Z), "pvc"))
+    p.append(Part("outlet_box", box(*OUTLET_X, C_Y - 30, y1 - R - 1, 1, zt - 0.5), "pvc"))
+    grip = Cylinder(GLAND_R, 22, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((gx, gy, zt - 14)))
+    grip += Cylinder(GLAND_R - 3, 8, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((gx, gy, zt + 8)))
+    p.append(Part("cord_grip", grip, "pp_black"))
+    if kind == "corner":
+        p.append(Part("pull_box", box(*JUNCTION_X, C_Y - 30, y1 - R - 1, 1, zt - 0.5), "pvc"))
+    if kind == "power":
         fx = length / 2 + 110
-        p.append(Part("fuse_block", box(fx - 60, fx + 60, D / 2 - 35, D / 2 + 35, zt - 28, zt), "stay"))
+        p.append(Part("fuse_block", box(fx - 60, fx + 60, C_Y - 30, y1 - R - 1, 1, zt - 0.5), "stay"))
         ix = length / 2 + 100
         front -= box(ix - PP - 0.5, ix + PP + 0.5, y0 - 1, y0 + R + 1, 12 - 0.5, 12 + PP + 0.5)
         p += pp_pair(ix, y0 - 10, y0 - 10 + PP_L, 12, 12 + PP, "feeder_inlet")
@@ -306,7 +342,49 @@ def base_parts(length, power=False):
     return p
 
 
-POWER = {"conn": [CONN_X, CONN_Y], "fuse": None, "feeder": None}
+def ring_hardware(places, length):
+    """Parts that join base sections, in pit coordinates: conduit couplers and connector bolts at
+    each straight seam; at each corner a conduit nipple + coupler into the end section's pull box,
+    two hardwood spacers across the 21 mm gap (toe kick + seam) and two bolts through them."""
+    import math as _m
+    out = []
+    ends_y = YO
+    def place(shape, pl):
+        x, y, r, _ = pl
+        return shape.moved(Location((x, y, 0)) * Rotation(0, 0, r))
+    def to_pit(pl, lx, ly):
+        x, y, r, _ = pl
+        a = _m.radians(r)
+        return x + lx * _m.cos(a) - ly * _m.sin(a), y + lx * _m.sin(a) + ly * _m.cos(a)
+    for k, pl in enumerate(places):
+        side = pl[3]
+        if side in ("west", "east"):
+            px, py = to_pit(pl, length, C_Y)
+            if abs(abs(py) - ends_y) > 5:            # x = L meets the next end section
+                tag = f"seam_{k}"
+                out.append(Part(f"coupler_{tag}", place(tube_x(COUPLER_R, C_R, length - COUPLER_L / 2,
+                                                                length + COUPLER_L / 2, C_Y, C_Z), pl), "pvc"))
+                for j, yb in enumerate((120.0, 330.0)):
+                    out.append(Part(f"bolt_{tag}_{j}", place(cyl_x(4, length - 30, length + 30, yb, C_Z), pl), "steel"))
+        else:
+            # which end of this side section is at the corner?
+            e0, e1 = to_pit(pl, 0, C_Y), to_pit(pl, length, C_Y)
+            left = abs(e0[0]) > abs(e1[0])
+            corner = "w" if (e0 if left else e1)[0] < 0 else "e"
+            corner += "s" if pl[1] < 0 else "n"
+            reach = D - C_Y                            # out to the end run's conduit line
+            if left:
+                xa, xb, ga, gb, ca = -reach, SEAM, -BASE_SET, SEAM, SEAM
+            else:
+                xa, xb, ga, gb, ca = length - SEAM, length + reach, length - SEAM, length + BASE_SET, length - SEAM
+            out.append(Part(f"nipple_{corner}", place(tube_x(C_R, C_RI, xa, xb, C_Y, C_Z), pl), "pvc"))
+            out.append(Part(f"coupler_{corner}", place(tube_x(COUPLER_R, C_R, ca - COUPLER_L / 2, ca + COUPLER_L / 2,
+                                                                C_Y, C_Z), pl), "pvc"))
+            for j, (ya, yb) in enumerate(((150.0, 230.0), (290.0, 370.0))):
+                out.append(Part(f"spacer_{corner}_{j}", place(box(ga, gb, ya, yb, 3, BASE_H - BASE_TOP - 3), pl), "maple"))
+                bx0, bx1 = (ga - 25, gb + 25)
+                out.append(Part(f"bolt_{corner}_{j}", place(cyl_x(4, bx0, bx1, (ya + yb) / 2, 15), pl), "steel"))
+    return out
 
 
 # ---------------------------------------------------------------- variants
@@ -358,8 +436,10 @@ def bench(length, n_bays, end_windows, n_lids, seed):
     bottom = box(T, length - T, T, D - T, BASE_H, BASE_H + T)
     p += power_parts_bench(length)
     for pt in p:
-        if pt.name.startswith(("pin_", "conn_bench")):
+        if pt.name.startswith("pin_"):
             bottom -= pt.shape
+    bottom -= Cylinder(GROMMET_R + 2, T + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+        Location((GLAND_XY[0], GLAND_XY[1], BASE_H - 1)))
     p.append(Part("bottom", bottom, "black"))
 
     # ends: solid 18 mm panels (structural) with a birch liner, or optional windows
@@ -381,7 +461,7 @@ def bench(length, n_bays, end_windows, n_lids, seed):
 
     inset = T + (T_ACR if end_windows else T_LINER)
     dfloor = box(T, length - T, T + T_ACR, D - T, FLOOR_Z - T_FLOOR, FLOOR_Z)
-    dfloor -= box(CHASE_X[0] - 0.5, CHASE_X[1] + 0.5, T, CHASE_Y[1] + 0.5, FLOOR_Z - T_FLOOR - 1, FLOOR_Z + 1)
+    dfloor -= box(BCHASE[0] - 0.5, BCHASE[1] + 0.5, BCHASE[2] - 0.5, D, FLOOR_Z - T_FLOOR - 1, FLOOR_Z + 1)
     p.append(Part("display_floor", dfloor, "ply"))
     p.append(Part("back_liner", box(T, length - T, D - T - T_LINER, D - T, FLOOR_Z, HC), "ply"))
     for k in range(1, n_bays):
@@ -587,9 +667,10 @@ def main():
     swing_check(bp, b_piv[0])
     assert H - LEAF_W > HC, 'hinge leaf deeper than the top board'
     tp = coffee_table()
-    basep, powerp = base_parts(L), base_parts(L, power=True)
+    basep, cornerp, powerp = base_parts(L), base_parts(L, "corner"), base_parts(L, "power")
     check(bp, "bench")
     check(basep, "base")
+    check(cornerp, "base_cnr")
     check(powerp, "base_pwr")
     check(tp, "table")
     # bench sits on its base: bottom panel on the top plate, pins in the bushings, connector halves meet
@@ -598,26 +679,36 @@ def main():
     for pt in bp:
         if pt.name.startswith("pin_"):
             for bt in basep:
-                if bt.name.startswith(("base_top", "base_rail", "base_front", "base_back", "base_conn")):
+                if bt.name.startswith(("base_top", "base_rail", "base_front", "base_back", "conduit", "outlet")):
                     v = (pt.shape & bt.shape).volume
                     assert v < 1, f"{pt.name} hits {bt.name} ({v:.1f} mm^3)"
-    print("base fit OK: pins clear the base, connector halves meet at Z =", BASE_H - CONN_DROP)
+    for bt in basep:     # nothing in the base may poke into the bench above (cord grip goes up the grommet)
+        if bt.name != "cord_grip":
+            assert bt.shape.bounding_box().max.Z <= BASE_H + 0.01, f"{bt.name} sticks up into the bench"
+    print("base fit OK: pins clear the base frame and conduit")
 
     b_c, t_c = labelled(bp, "pit_bench"), labelled(tp, "coffee_table")
-    base_c, power_c = labelled(basep, "pit_base"), labelled(powerp, "pit_base_power")
+    base_c, corner_c, power_c = labelled(basep, "pit_base"), labelled(cornerp, "pit_base_corner"), \
+        labelled(powerp, "pit_base_power")
     export_step(b_c, str(OUT / "pit_bench.step"))
     export_step(base_c, str(OUT / "pit_base.step"))
+    export_step(corner_c, str(OUT / "pit_base_corner.step"))
     export_step(power_c, str(OUT / "pit_base_power.step"))
 
     places = ring_locations()
     # the middle bench at each player end gets the power base (one 5 V supply per half of the ring)
     ends = {s: [k for k, pl in enumerate(places) if pl[3] == s] for s in ("west", "east")}
     power_idx = {ends["west"][1], ends["east"][1]}
+    corner_idx = {ends[s][j] for s in ends for j in (0, 2)}
+    base_kind = ["base_power" if k in power_idx else "base_corner" if k in corner_idx else "base"
+                 for k in range(len(places))]
+    ring = ring_hardware(places, L)
+    check(ring, "ring_hw")
 
     # display collections: one themed set per bench, rotated around the pit
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from collection import THEMES, build_contents
-    ix0, ix1 = CHASE_X[1] + 2, L - T - T_ACR - 2      # left edge clears the wire chase
+    ix0, ix1 = BCHASE[1] + 2, L - T - T_ACR - 2      # left edge clears the cable chase
     iy0, iy1 = T + T_ACR + 2, D - T - T_LINER - 2
     sets = []
     for ti in range(len(THEMES)):
@@ -629,9 +720,11 @@ def main():
         check(prts, nm[:9])
         sets.append((nm, prts))
     benches = [b_c.moved(Location((x, y, 0)) * Rotation(0, 0, r)) for x, y, r, _ in places]
-    bases = [(power_c if k in power_idx else base_c).moved(Location((x, y, 0)) * Rotation(0, 0, r))
+    kinds = {"base": base_c, "base_corner": corner_c, "base_power": power_c}
+    bases = [kinds[base_kind[k]].moved(Location((x, y, 0)) * Rotation(0, 0, r))
              for k, (x, y, r, _) in enumerate(places)]
-    asm = benches + bases + [t_c]
+    ring_c = labelled(ring, "base_joints")
+    asm = benches + bases + [ring_c, t_c]
     for i, a in enumerate(asm):
         a.label = f"{a.label}_{i}"
     # sanity: no two benches overlap
@@ -662,18 +755,20 @@ def main():
     data = {
         "units": "mm",
         "params": params,
-        "placements": [{"variant": "bench", "base": "base_power" if i in power_idx else "base",
+        "placements": [{"variant": "bench", "base": base_kind[i],
                         "pos": [x, y], "rot": r, "side": sd, "contents": i % len(sets),
                         "half": "west" if x < 0 or sd == "west" else "east"}
                        for i, (x, y, r, sd) in enumerate(places)],
-        "power": {"conn": [CONN_X, CONN_Y], "fuse": [L / 2 + 110, D / 2], "feeder": [L / 2 + 100, BASE_SET],
-                  "strip_len": LED_SPEC["strip_len"], "base_h": BASE_H, "pin_l": PIN_L, "conn_drop": CONN_DROP},
+        "power": {"conn": list(GLAND_XY), "fuse": [L / 2 + 110, C_Y], "feeder": [L / 2 + 100, BASE_SET],
+                  "c_y": C_Y, "strip_len": LED_SPEC["strip_len"], "base_h": BASE_H, "pin_l": PIN_L},
         "contents": [{"name": nm, "parts": [mesh_record(x) for x in prts]} for nm, prts in sets],
         "variants": {
             "bench": {"parts": [mesh_record(x) for x in bp], "pivots": b_piv, "lights": b_lights,
                       "spec": b_spec, "qty": len(places)},
             "base": {"parts": [mesh_record(x) for x in basep]},
+            "base_corner": {"parts": [mesh_record(x) for x in cornerp]},
             "base_power": {"parts": [mesh_record(x) for x in powerp]},
+            "ring_hw": {"parts": [mesh_record(x) for x in ring]},
             "table": {"parts": [mesh_record(x) for x in tp]},
         },
     }
