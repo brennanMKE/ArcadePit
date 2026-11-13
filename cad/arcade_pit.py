@@ -12,7 +12,7 @@ Layout (plan, table long axis = X):
      │   ││         │   gap   │         ││   │
      └───┘└─────────┘         └─────────┘└───┘
 
-All 10 benches are identical (windows on the outer face and both ends) so any
+All 10 benches are identical (one window on the outer face; solid wood ends for strength) so any
 bench fits any spot and each is a two-person carry.  Everything is derived from
 the table size and the knee-room clearances below.
 
@@ -92,7 +92,9 @@ LEAF_W = 0.66 * 25.4                              # 0.66" leaf
 KNUCKLE_R = HINGE_IN.knuckle_dia / 2
 STAY_HOLD = HINGE_IN.stay_hold_deg
 ROPE_STOP = HINGE_IN.rope_stop_deg
-STAY_ZONE = 115.0   # solid end panel behind the stays: end windows start this far from the display face
+# End liners are notched at the top front so the stays and rope eyes mount on the solid 18 mm end panel
+LINER_NOTCH_Y = 200.0   # notch depth from the display face (clears the stay arm's travel)
+LINER_NOTCH_H = 125.0   # notch height down from the carcass top
 
 # Display lighting: LED strip facing DOWN, just behind the front acrylic, in a channel
 # routed into the underside of a black LED header glued behind the frame's top rail.
@@ -276,7 +278,7 @@ def base_parts(length, power=False):
         bush -= Cylinder(PIN_R + 0.4, BASE_TOP + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
             Location((x, D / 2, zt - 1)))
         p.append(Part(f"base_bushing_{i}", bush, "steel"))
-    p.append(Part("base_top", top, "black"))
+    p.append(Part("base_top", top, "base_ply"))
     front = box(x0, x1, y0, y0 + R, 0, zt)
     back = box(x0, x1, y1 - R, y1, 0, zt)
     for a, b in ((x0 + 40, x0 + 220), (x1 - 220, x1 - 40)):
@@ -288,7 +290,7 @@ def base_parts(length, power=False):
     # floating bracket for the base connector half, screwed to the front rail
     br = box(CONN_X - 14, CONN_X + 14, y0 + R, CONN_Y + 10, 4, zt)
     br -= box(CONN_X - PP - 0.6, CONN_X + PP + 0.6, CONN_Y - PP / 2 - 0.6, CONN_Y + PP / 2 + 0.6, 3, zt + 1)
-    p.append(Part("base_conn_bracket", br, "black"))
+    p.append(Part("base_conn_bracket", br, "base_ply"))
     z1 = BASE_H - CONN_DROP
     p += pp_pair(CONN_X, CONN_Y - PP / 2, CONN_Y + PP / 2, z1 - PP_L, z1, "conn_base")
     if power:
@@ -297,10 +299,10 @@ def base_parts(length, power=False):
         ix = length / 2 + 100
         front -= box(ix - PP - 0.5, ix + PP + 0.5, y0 - 1, y0 + R + 1, 12 - 0.5, 12 + PP + 0.5)
         p += pp_pair(ix, y0 - 10, y0 - 10 + PP_L, 12, 12 + PP, "feeder_inlet")
-    p.append(Part("base_front", front, "black"))
-    p.append(Part("base_back", back, "black"))
+    p.append(Part("base_front", front, "base_ply"))
+    p.append(Part("base_back", back, "base_ply"))
     for k, r in enumerate(rails):
-        p.append(Part(f"base_rail_{k}", r, "black"))
+        p.append(Part(f"base_rail_{k}", r, "base_ply"))
     return p
 
 
@@ -360,19 +362,21 @@ def bench(length, n_bays, end_windows, n_lids, seed):
             bottom -= pt.shape
     p.append(Part("bottom", bottom, "black"))
 
-    # ends: windowed (long bench, exposed at the pit corners) or plain butt panels
+    # ends: solid 18 mm panels (structural) with a birch liner, or optional windows
     end_win_w = 0.0
     for side, (x0, x1) in (("l", (0, T)), ("r", (length - T, length))):
         end = box(x0, x1, T, D - T, BASE_H, HC)
         if end_windows:
-            ya, yb = STAY_ZONE + 10, D - T - BORDER_SIDE + 5
+            ya, yb = 125.0, D - T - BORDER_SIDE + 5
             end -= box(x0 - 1, x1 + 1, ya, yb, wz0, wz1)
             end_win_w = yb - ya
             ax0, ax1 = (T, T + T_ACR) if side == "l" else (length - T - T_ACR, length - T)
-            p.append(Part(f"acrylic_end_{side}", box(ax0, ax1, STAY_ZONE, D - T - 25, wz0 - 15, wz1 + 15), "acrylic"))
+            p.append(Part(f"acrylic_end_{side}", box(ax0, ax1, 115.0, D - T - 25, wz0 - 15, wz1 + 15), "acrylic"))
         else:
-            lx0, lx1 = (T, T + T_LINER) if side == "l" else (length - T - T_LINER, length - T)
-            p.append(Part(f"end_liner_{side}", box(lx0, lx1, T + T_ACR, D - T - T_LINER, FLOOR_Z, HC), "ply"))
+            ex0, ex1 = (T, T + T_LINER) if side == "l" else (length - T - T_LINER, length - T)
+            liner = box(ex0, ex1, T + T_ACR, D - T - T_LINER, FLOOR_Z, HC)
+            liner -= box(ex0 - 1, ex1 + 1, T, LINER_NOTCH_Y, HC - LINER_NOTCH_H, HC + 1)
+            p.append(Part(f"end_liner_{side}", liner, "ply"))
         p.append(Part(f"end_{side}", end, "black"))
 
     inset = T + (T_ACR if end_windows else T_LINER)
@@ -414,7 +418,7 @@ def bench(length, n_bays, end_windows, n_lids, seed):
 
 
 def pit_bench():
-    return bench(L, n_bays=1, end_windows=True, n_lids=1, seed=7)
+    return bench(L, n_bays=1, end_windows=False, n_lids=1, seed=7)
 
 
 def coffee_table():
@@ -648,7 +652,7 @@ def main():
         + sum(pt.shape.volume for pt in bp if pt.mat == "steel") * 8.0e-6
     b_spec["weight_kg"] = round(weight)
     b_spec["base"] = {"h": BASE_H, "setback": BASE_SET, "pin_d": 2 * PIN_R, "pin_l": PIN_L,
-                      "weight_kg": round(sum(pt.shape.volume for pt in basep if pt.mat == "black") * 0.68e-6, 1)}
+                      "weight_kg": round(sum(pt.shape.volume for pt in basep if pt.mat == "base_ply") * 0.68e-6, 1)}
     b_spec["led"] = {k: (round(v, 1) if isinstance(v, float) else [round(x, 1) for x in v]) for k, v in LED_SPEC.items()}
     params = {"D": D, "L": L, "H": H, "OVERHANG": OVERHANG, "GAP": GAP,
               "INNER_L": INNER_L, "INNER_W": INNER_W,

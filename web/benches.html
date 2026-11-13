@@ -114,10 +114,10 @@ const MATS = [
   ['#c9ced3', 'Steel piano hinge, 1½″ open, 0.66″ leaf, wrapped round the outer top corner'],
   ['#3a3a3f', '2 × Sugatsune SDS-210 soft-down stays, hold at 105°'],
   ['#e0662a', '2 × braided-cord rope limiters, stop at 108°'],
-  ['rgba(220,235,255,.35)', '6 mm clear acrylic: outer face and both ends'],
+  ['rgba(220,235,255,.35)', '6 mm clear acrylic window on the outer face'],
   ['#fff1d6', 'Warm-white LED strip facing down, in a routed channel behind the acrylic, under an opal diffuser'],
   ['#c9a678', 'Birch liner and display floor'],
-  ['#2a2a2a', 'Base: 45 mm black ply frame, set back 20 mm, cable slots through every rail'],
+  ['#3b3936', 'Base: 45 mm charcoal ply frame, set back 20 mm, cable slots through every rail'],
   ['#c62828', '5 V blind-mate connector: Anderson Powerpole pair, red +5 V / black GND'],
   ['#f2a20c', 'Collection: carts, discs, consoles and toys (five themed sets rotate around the pit)'],
 ];
@@ -130,7 +130,7 @@ function renderSpec(view) {
     ['Depth (with overhang)', dim(sp.depth)],
     ['Seat height', dim(sp.height)],
     ['Face window', `${sp.windows[0]} × ${sp.window_h} mm`],
-    ['End windows', `2 × ${sp.end_windows} × ${sp.window_h} mm`],
+    ['Ends', 'Solid 18 mm ply, birch lined'],
     ['Hinge length', fmt.mm(sp.hinge[0])],
     ['Base', `${sp.base.h} mm tall, ${sp.base.pin_d} mm locating pins`],
     ['Storage, approx.', `${sp.storage_l} L`],
@@ -139,8 +139,8 @@ function renderSpec(view) {
   const blurb = view === 'base'
     ? `The bench lifted off its base. The two steel pins under the bench drop into the bushings in the base top, and the red/black Powerpole half under the left end plugs into the floating half in the base. Every base has cable slots through its rails, so each bench's own 5 V run passes under its neighbours.`
     : view === 'corner'
-    ? `How a corner closes: the end bench (three across each player end) runs to the outer corner, and the long-side bench butts into its seat face. The exposed end shows its window.`
-    : `Length is set by the table: three benches span each player end, ${fmt.mm(P.INNER_W)} inside plus a bench depth each side. Windows on the face and both ends mean the exposed ends at corners and gaps all glow.`;
+    ? `How a corner closes: the end bench (three across each player end) runs to the outer corner, and the long-side bench butts into its seat face. The ends are solid wood for strength.`
+    : `Length is set by the table: three benches span each player end, ${fmt.mm(P.INNER_W)} inside plus a bench depth each side. Each bench has one window on its outer face. The ends are solid 18 mm ply for strength.`;
   document.getElementById('spec').innerHTML = `
     <h2>Pit bench<span class="qty">× ${data.variants.bench.qty} in pit</span></h2>
     <p>${blurb}</p>
@@ -148,7 +148,7 @@ function renderSpec(view) {
     <h3>How the lid works</h3>
     <p>A steel piano hinge wraps round the outside top corner of the display face. The case leaf screws to the black rail above the window, and the lid leaf sits in a rabbet under the lid's back edge, so nothing is proud on the seat and every screw goes into face grain. Lift the seat front (finger scoop in the front panel) and the lid swings back over the display side. The soft-down stays latch at 105° and a cord at each end stops it at 108°.</p>
     <h3>How the display is lit</h3>
-    <p>A black header is glued behind the frame's top rail, and the front acrylic slides up under it. A ½″ channel routed into the header's underside holds the LED strip facing down, just behind the acrylic, with an opal acrylic diffuser flush over it. Light falls onto the collection from the front-top, so the items are lit where people look, and the strip itself stays out of sight behind the frame. The end windows are lit by the same strip.</p>
+    <p>A black header is glued behind the frame's top rail, and the front acrylic slides up under it. A ½″ channel routed into the header's underside holds the LED strip facing down, just behind the acrylic, with an opal acrylic diffuser flush over it. Light falls onto the collection from the front-top, so the items are lit where people look, and the strip itself stays out of sight behind the frame.</p>
     <h3>How it sits and gets power</h3>
     <p>Each bench drops onto its own ${sp.base.h} mm base, which fills the dead space that used to sit under the display floor, so the seat, windows and display are the same height as before. Two chamfered steel pins in the bench bottom find bushings in the base top and line the bench up ${sp.base.pin_l - data.power.conn_drop} mm before a red/black Powerpole pair meets, so setting the bench down plugs it in, and lifting it straight up unplugs it. Inside, the pair runs up a black chase hidden behind the left border into the LED header and feeds both ends of the strip. Every bench has its own fused 5 V run from a supply at its end of the pit.</p>
     <h3>Materials</h3>

@@ -105,7 +105,7 @@ They're all at the top of `cad/arcade_pit.py`:
 | Group | Parameters |
 |---|---|
 | Layout | `CLEAR_END`, `CLEAR_SIDE`, `END_BENCHES`, `GAP_MIN`, `D` |
-| Bench | `H`, `T_TOP`, `T`, `T_ACR`, `T_LINER`, `T_FLOOR`, `SEAM`, `BORDER_*`, `STAY_ZONE` |
+| Bench | `H`, `T_TOP`, `T`, `T_ACR`, `T_LINER`, `T_FLOOR`, `SEAM`, `BORDER_*`, `LINER_NOTCH_*` |
 | Lighting | `HEADER_D`, `LED_CH_W`, `LED_CH_D`, `DIFF_W`, `DIFF_T` |
 | Base and power | `BASE_*`, `PIN_*`, `PP`, `PP_L`, `CONN_*`, `CHASE_*` |
 | Hinge | from `hinge_calc.Inputs()` defaults |

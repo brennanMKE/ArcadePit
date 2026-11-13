@@ -98,6 +98,7 @@ export function makeMaterials() {
     glow_green: new THREE.MeshBasicMaterial({ color: 0x9bbc0f }),
     glow_warm: new THREE.MeshBasicMaterial({ color: 0xffd166 }),
     glow_blue: new THREE.MeshBasicMaterial({ color: 0x4cc9f0 }),
+    base_ply: new THREE.MeshStandardMaterial({ color: 0x3b3936, roughness: 0.6, metalness: 0.05 }),
     pp_red: new THREE.MeshStandardMaterial({ color: 0xc62828, roughness: 0.4 }),
     pp_black: new THREE.MeshStandardMaterial({ color: 0x1c1c1c, roughness: 0.4 }),
     floor: new THREE.MeshStandardMaterial({ color: 0x5f5c58, roughness: 0.38, metalness: 0.0 }),

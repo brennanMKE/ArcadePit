@@ -43,8 +43,8 @@ class Inputs:
     rope_stop_deg: float = 108.0
     # long a/c and short b make the span change fastest near 105-108 deg (d span/d theta ~ c(a sin - b cos)),
     # giving a few mm between the stay latching and the rope going taut.
-    rope_a: float = 150.0              # case anchor forward of pivot (end panel, above the end window)
-    rope_b: float = 20.0               # case anchor below pivot (keeps the eye on solid panel above the end window)
+    rope_a: float = 150.0              # case anchor forward of pivot (on the solid end panel)
+    rope_b: float = 20.0               # case anchor below pivot (in the end liner's notch, on the 18 mm panel)
     rope_c: float = 150.0              # lid anchor forward of pivot (lid underside)
     # site
     wall_distance: float | None = None  # bench back face to wall/obstruction, mm
@@ -320,7 +320,7 @@ plywood face grain.
 4. Screw the lid leaf into the rabbet, knuckle centre on the lid's back edge (#4 × 1/2", pilot holes).
 5. Set the lid closed on the case, back edge flush with the display face; clamp.
 6. Screw the case leaf to the frame rail above the window (#4 × 5/8", pilot holes). Keep the leaf inside the 45 mm rail so it never crosses the window.
-7. Fit {r.stays} SDS-210 stay{'s' if r.stays > 1 else ''} to the solid zone at the back of each end panel (the end windows start {115} mm in from the display face to leave room). Use Sugatsune's drawing, measured from the hinge centre.
+7. Fit {r.stays} SDS-210 stay{'s' if r.stays > 1 else ''} to each solid 18 mm end panel, in the notch at the top of the end liner. Use Sugatsune's drawing, measured from the hinge centre.
 8. Fit the rope limiters inboard of each stay: screw eyes into the end panel face and the lid underside at a, b, c above.
 9. Open and close 20 times. The stay must latch at {i.stay_hold_deg:.0f}° before the rope goes taut at {i.rope_stop_deg:.0f}°.
 

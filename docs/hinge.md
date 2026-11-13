@@ -38,8 +38,7 @@ For 10 benches, buy 10 hinges, 20 stays and 20 ropes.
 
 The estimated lid weight is 12.9 lb (890 × 508 × 19 mm birch ply), which is **6.5 lb per stay** with two stays.
 That's near the low end of the SDS-210's 6–10 lb range, so confirm on Sugatsune's selection chart with the
-measured lid weight. The stays mount on the solid first 115 mm of each end panel. The end windows start behind
-that zone.
+measured lid weight. The stays mount on the solid 18 mm end panels, in a notch at the top of the end liners.
 
 ## Rope limiter
 
@@ -50,7 +49,7 @@ Anchors, measured from the knuckle (x forward into the bench, y up):
 
 | Anchor | Position |
 |---|---|
-| Case (end panel face, above the end window) | a = 150 mm forward, b = 20 mm below |
+| Case (end panel face, in the liner notch) | a = 150 mm forward, b = 20 mm below |
 | Lid (underside) | c = 150 mm forward |
 
 ```

@@ -20,9 +20,9 @@ a mesh bundle for the browser viewers.
 | Bench (all 10 identical) | 892 L × 508 D × 457 H mm | 35.1″ × 20″ × 18″ |
 | Walk-in gaps | 2, centred on the long sides, 915 mm | 36″ |
 | Knee room to table | 496 mm at player ends, 465 mm on long sides | 19.5″ / 18.3″ |
-| Bench weight (estimate) | ~28 kg | ~62 lb, a two-person carry |
+| Bench weight (estimate) | ~30 kg | ~66 lb, a two-person carry |
 | Base | 45 mm, set back 20 mm; the bench drops on with 2 locating pins | 1¾″ |
-| Storage per bench | ~143 L | ~5 ft³ |
+| Storage per bench | ~141 L | ~5 ft³ |
 | Lid hinge | Steel piano hinge, 865 mm, wrapped on the outer top corner | 34″ |
 | Lid hold / stop | Soft-down stays hold at 105°, rope limiter stops at 108° | |
 | Display lighting | Down-facing LED strip in a routed header behind the front acrylic, opal diffuser | |

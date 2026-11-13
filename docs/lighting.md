@@ -34,12 +34,6 @@ header puts the strip just behind the acrylic, inside the display.
 
 This is still an open choice: see [open-items.md](open-items.md).
 
-## End windows
-
-The end windows don't have their own strips. Light from the front strip reaches them. If the end views look too dark
-once it's built, a short strip in a header over each end window would fit the same way. Space there is tight
-around the rope anchors.
-
 ## Removed in this revision
 
 - The strip under the lid.

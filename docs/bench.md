@@ -1,8 +1,7 @@
 # Bench Module
 
-All 10 benches are the same module (`pit_bench()` → `bench()` in `cad/arcade_pit.py`). Each bench has a window on
-its outer face and on both ends, so it works in any position: at a corner, the end windows are exposed; elsewhere
-they face a neighbour.
+All 10 benches are the same module (`pit_bench()` → `bench()` in `cad/arcade_pit.py`), so any bench fits any spot.
+Each bench has one window, on its outer face. The ends are solid wood for structural strength.
 
 ## Overall
 
@@ -11,10 +10,10 @@ they face a neighbour.
 | Length × depth × height | 892 × 508 × 457 mm (35.1″ × 20″ × 18″ seat height) |
 | Carcass height (below lid) | 438 mm |
 | Front window | 802 × 318 mm, 1 bay |
-| End windows | 325 mm wide × 318 mm, both ends |
+| Ends | Solid 18 mm ply, no windows |
 | Clear display height | 363 mm (display floor to lid) |
-| Storage volume | ~143 L |
-| Estimated weight | ~28 kg (62 lb): ply 680 kg/m³, acrylic 1190 kg/m³, steel 8000 kg/m³ |
+| Storage volume | ~141 L |
+| Estimated weight | ~30 kg (66 lb): ply 680 kg/m³, acrylic 1190 kg/m³, steel 8000 kg/m³ |
 | Sits on | A 45 mm base (see [power.md](power.md)); the carcass starts 45 mm above the floor |
 
 ## Materials
@@ -23,8 +22,8 @@ they face a neighbour.
 |---|---|---|
 | Lid | Birch plywood, 3/4″ | 19 mm |
 | Carcass panels (display face, seat front, ends, bottom) | Black-finished plywood | 18 mm |
-| Windows | Clear acrylic | 6 mm |
-| Interior liner (back) | Plywood | 6 mm |
+| Window (outer face only) | Clear acrylic | 6 mm |
+| Interior liners (back and ends) | Birch plywood | 6 mm |
 | Display floor | Plywood | 12 mm |
 | LED header | Black plywood | 38 mm deep (see [lighting.md](lighting.md)) |
 | LED diffuser | Opal acrylic | 3 mm (1/8″) |
@@ -38,8 +37,9 @@ they face a neighbour.
   its top edge slides up under the LED header, which holds it in place.
 - **Seat-front panel (inner, faces the table):** 18 mm, with a 140 × 22 mm finger-pull scoop centred in its top edge
   for lifting the lid.
-- **Ends:** 18 mm panels, each with a window starting 125 mm in from the display face. The first 115 mm is kept
-  solid (`STAY_ZONE`) for the lid stay and rope anchor. The end acrylic is 6 mm, inside the panel.
+- **Ends:** solid 18 mm panels with no window, for structural strength. They're lined with 6 mm birch inside.
+  The liner is notched at the top front (200 mm deep × 125 mm tall), so the lid stay and rope eye screw into the
+  solid 18 mm panel, not the thin liner.
 - **Bottom:** 18 mm, between the ends, resting on the base top plate at 45 mm. It carries the 2 locating pins and
   the bench half of the Powerpole connector ([power.md](power.md)).
 - **Wire chase:** a 9.5 × 30 mm black raceway up the inside of the display face at the left end, hidden behind

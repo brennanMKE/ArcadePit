@@ -35,7 +35,7 @@ plywood face grain.
 4. Screw the lid leaf into the rabbet, knuckle centre on the lid's back edge (#4 × 1/2", pilot holes).
 5. Set the lid closed on the case, back edge flush with the display face; clamp.
 6. Screw the case leaf to the frame rail above the window (#4 × 5/8", pilot holes). Keep the leaf inside the 45 mm rail so it never crosses the window.
-7. Fit 2 SDS-210 stays to the solid zone at the back of each end panel (the end windows start 115 mm in from the display face to leave room). Use Sugatsune's drawing, measured from the hinge centre.
+7. Fit 2 SDS-210 stays to each solid 18 mm end panel, in the notch at the top of the end liner. Use Sugatsune's drawing, measured from the hinge centre.
 8. Fit the rope limiters inboard of each stay: screw eyes into the end panel face and the lid underside at a, b, c above.
 9. Open and close 20 times. The stay must latch at 105° before the rope goes taut at 108°.
 

@@ -49,3 +49,5 @@ How the design got to where it is, so the reasons aren't lost.
    which fills the empty space under the display floor, so no heights change. Locating pins line each bench up,
    and a blind-mate Powerpole connects it as it sets down. Each bench gets its own fused 5 V run from a supply at
    its end of the pit.
+10. **Solid ends.** The end windows were removed. Each bench has one window on its outer face, and the ends are
+    solid wood for structural strength.
